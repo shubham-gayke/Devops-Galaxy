@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import ReactFlow, { 
   Background, 
   Controls, 
@@ -85,19 +85,6 @@ const initialEdges = [
 export default function Workflow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  // Toggle animation periodically for visual interest
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setEdges((eds) =>
-        eds.map((edge) => ({
-          ...edge,
-          animated: !edge.animated,
-        }))
-      );
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [setEdges]);
 
   return (
     <div className="workflow-container">
