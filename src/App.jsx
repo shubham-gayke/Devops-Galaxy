@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import { BookOpen, GitBranch, Cloud, HelpCircle, Menu, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, ArrowUp, Copy, Check, Palette } from 'lucide-react'
+import { BookOpen, GitBranch, Cloud, Server, HelpCircle, Menu, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, ArrowUp, Copy, Check, Palette } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Workflow from './Workflow'
 
 // Import markdown files
 import gitNotesContent from './Git_GitHub_Complete_Notes.md?raw'
 import terraformNotesContent from './Terraform_Complete_Notes.md?raw'
+import ansibleNotesContent from './Ansible_Complete_Notes.md?raw'
 import interviewQuestionsContent from './interview_questions.md?raw'
 
 // ======================== CODE BLOCK COMPONENT ========================
@@ -216,6 +217,7 @@ function App() {
   const pages = {
     git: { content: gitNotesContent, label: 'Git & GitHub', icon: GitBranch },
     terraform: { content: terraformNotesContent, label: 'Terraform', icon: Cloud },
+    ansible: { content: ansibleNotesContent, label: 'Ansible', icon: Server },
     interview: { content: interviewQuestionsContent, label: 'Interview Q&A', icon: HelpCircle },
   }
 
