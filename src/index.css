@@ -20,21 +20,6 @@
   --highlight-bg: rgba(255, 255, 0, 0.2);
 }
 
-/* Light Theme */
-[data-theme='light'] {
-  --bg-main: #f8fafc;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f1f5f9;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --accent: #2563eb;
-  --accent-glow: rgba(37, 99, 235, 0.3);
-  --accent-secondary: #7c3aed;
-  --border: #e2e8f0;
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --code-bg: #f1f5f9;
-  --highlight-bg: rgba(253, 224, 71, 0.5);
-}
 
 /* Ocean Theme */
 [data-theme='ocean'] {
@@ -52,21 +37,6 @@
   --highlight-bg: rgba(14, 165, 233, 0.3);
 }
 
-/* Dracula Theme */
-[data-theme='dracula'] {
-  --bg-main: #282a36;
-  --bg-card: rgba(255, 121, 198, 0.05);
-  --bg-card-hover: rgba(255, 121, 198, 0.1);
-  --text-main: #f8f8f2;
-  --text-muted: #6272a4;
-  --accent: #ff79c6;
-  --accent-glow: rgba(255, 121, 198, 0.5);
-  --accent-secondary: #bd93f9;
-  --border: rgba(98, 114, 164, 0.5);
-  --glass-bg: rgba(40, 42, 54, 0.8);
-  --code-bg: #21222c;
-  --highlight-bg: rgba(255, 121, 198, 0.3);
-}
 
 * {
   box-sizing: border-box;
