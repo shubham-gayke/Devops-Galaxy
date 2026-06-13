@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useRef, useMemo, Suspense, lazy } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'
+import remarkGfm from 'remark-gfm'
+// Lazy load SyntaxHighlighter to improve initial load time
+const SyntaxHighlighter = lazy(() => import('react-syntax-highlighter').then(m => ({ default: m.Prism })))
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import { BookOpen, GitBranch, Cloud, Server, HelpCircle, Menu, X, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Search, ArrowUp, Copy, Check, Palette } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Workflow from './Workflow'
+import ServiceModelDiagram from './ServiceModelDiagram'
 
 // Import markdown files
 import gitNotesContent from './Git_GitHub_Complete_Notes.md?raw'
 import terraformNotesContent from './Terraform_Complete_Notes.md?raw'
 import ansibleNotesContent from './Ansible_Complete_Notes.md?raw'
+import awsNotesContent from './AWS_Complete_Notes.md?raw'
 import interviewQuestionsContent from './interview_questions.md?raw'
 
 // ======================== CODE BLOCK COMPONENT ========================
@@ -25,7 +29,6 @@ const CodeBlock = React.memo(function CodeBlock({ children, className }) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // fallback
       const ta = document.createElement('textarea')
       ta.value = code
       document.body.appendChild(ta)
@@ -38,25 +41,84 @@ const CodeBlock = React.memo(function CodeBlock({ children, className }) {
   }
 
   if (!match) {
-    return <code className={className}>{children}</code>
+    return <code className={className} style={{
+      background: 'var(--code-inline-bg)',
+      padding: '0.2em 0.4em',
+      borderRadius: '4px',
+      fontSize: '0.9em',
+      fontFamily: '"Fira Code", "Consolas", monospace',
+      color: 'var(--accent)'
+    }}>{children}</code>
   }
 
   return (
-    <div className="code-block-wrapper">
-      <div className="code-block-header">
-        <span className="code-lang-badge">{language}</span>
-        <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy}>
-          {copied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
+    <div className="code-block-wrapper" style={{ 
+      position: 'relative',
+      marginBottom: '1.5rem',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+      border: '1px solid var(--border)'
+    }}>
+      <div className="code-block-header" style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0.75rem 1.25rem',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)'
+      }}>
+        <span className="code-lang-badge" style={{
+          background: 'rgba(255,255,255,0.2)',
+          padding: '0.25rem 0.75rem',
+          borderRadius: '6px',
+          fontSize: '0.75rem',
+          fontWeight: '600',
+          color: 'white',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>{language}</span>
+        <button 
+          className={`copy-btn ${copied ? 'copied' : ''}`} 
+          onClick={handleCopy}
+          style={{
+            background: copied ? 'rgba(76, 175, 80, 0.3)' : 'rgba(255,255,255,0.2)',
+            border: 'none',
+            color: 'white',
+            padding: '0.4rem 1rem',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '0.8rem',
+            fontWeight: '500',
+            transition: 'all 0.3s ease',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          {copied ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy</>}
         </button>
       </div>
-      <SyntaxHighlighter
-        style={oneDark}
-        language={language}
-        PreTag="pre"
-        customStyle={{ margin: 0, padding: '1rem 1.25rem', background: 'var(--code-bg)', fontSize: '0.88rem' }}
-      >
-        {code}
-      </SyntaxHighlighter>
+      <Suspense fallback={<pre style={{ margin: 0, padding: '1.5rem 1.25rem', background: '#1e1e1e', color: '#d4d4d4', fontSize: '0.9rem', lineHeight: '1.6', fontFamily: '"Fira Code", "Consolas", monospace' }}>Loading code...</pre>}>
+        <SyntaxHighlighter
+          style={vscDarkPlus}
+          language={language}
+          PreTag="pre"
+          customStyle={{ 
+            margin: 0, 
+            padding: '1.5rem 1.25rem', 
+            background: '#1e1e1e',
+            fontSize: '0.9rem',
+            lineHeight: '1.6',
+            fontFamily: '"Fira Code", "Consolas", monospace'
+          }}
+          showLineNumbers={true}
+          wrapLines={true}
+        >
+          {code}
+        </SyntaxHighlighter>
+      </Suspense>
     </div>
   )
 })
@@ -183,7 +245,7 @@ function InterviewPage({ content }) {
                       style={{ overflow: 'hidden' }}
                     >
                       <div className="qa-answer">
-                        <ReactMarkdown>{q.answer}</ReactMarkdown>
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{q.answer}</ReactMarkdown>
                       </div>
                     </motion.div>
                   )}
@@ -195,6 +257,22 @@ function InterviewPage({ content }) {
       ))}
     </div>
   )
+}
+
+// ======================== HELPER FUNCTIONS ========================
+const extractText = (children) => {
+  if (typeof children === 'string' || typeof children === 'number') return String(children)
+  if (Array.isArray(children)) return children.map(extractText).join('')
+  if (children?.props?.children) return extractText(children.props.children)
+  return ''
+}
+
+const pages = {
+  git: { content: gitNotesContent, label: 'Git & GitHub', icon: GitBranch },
+  terraform: { content: terraformNotesContent, label: 'Terraform', icon: Cloud },
+  ansible: { content: ansibleNotesContent, label: 'Ansible', icon: Server },
+  aws: { content: awsNotesContent, label: 'AWS Cloud', icon: Cloud },
+  interview: { content: interviewQuestionsContent, label: 'Interview Q&A', icon: HelpCircle },
 }
 
 // ======================== MAIN APP ========================
@@ -209,19 +287,19 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
   const [showSearch, setShowSearch] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
-  const [showScrollTop, setShowScrollTop] = useState(false)
+  const [{ scrollProgress, showScrollTop }, setScrollState] = useState({ scrollProgress: 0, showScrollTop: false })
+  const [lightboxImage, setLightboxImage] = useState(null)
+  const [imageZoom, setImageZoom] = useState(1)
   const searchRef = useRef(null)
   const searchInputRef = useRef(null)
 
-  const pages = {
-    git: { content: gitNotesContent, label: 'Git & GitHub', icon: GitBranch },
-    terraform: { content: terraformNotesContent, label: 'Terraform', icon: Cloud },
-    ansible: { content: ansibleNotesContent, label: 'Ansible', icon: Server },
-    interview: { content: interviewQuestionsContent, label: 'Interview Q&A', icon: HelpCircle },
-  }
-
   const currentContent = pages[currentPage].content
+
+  // Cache stripped content to avoid running heavy regex multiple times
+  const strippedContent = useMemo(() => {
+    if (currentPage === 'interview') return ''
+    return currentContent.replace(/```[\s\S]*?```/g, '')
+  }, [currentContent, currentPage])
 
   // Extract headings for TOC
   useEffect(() => {
@@ -230,34 +308,42 @@ function App() {
       return
     }
     
-    const contentWithoutCodeBlocks = currentContent.replace(/```[\s\S]*?```/g, '')
-    const headingMatches = [...contentWithoutCodeBlocks.matchAll(/^(#{1,3})\s+(.+)$/gm)]
-    const extractedHeadings = []
-    let currentChapter = null
+    let isCancelled = false
+    
+    setTimeout(() => {
+      if (isCancelled) return
+      
+      const headingMatches = [...strippedContent.matchAll(/^(#{1,3})\s+(.+)$/gm)]
+      const extractedHeadings = []
+      let currentChapter = null
 
-    headingMatches.forEach((match) => {
-      const level = match[1].length
-      const text = match[2]
-      const id = text.toLowerCase().replace(/[^\w]+/g, '-')
-      
-      const item = { id, title: text, level, children: [] }
-      
-      if (level <= 2) {
-        extractedHeadings.push(item)
-        currentChapter = item
-      } else if (level === 3) {
-        if (currentChapter) {
-          currentChapter.children.push(item)
-        } else {
+      headingMatches.forEach((match) => {
+        const level = match[1].length
+        const text = match[2]
+        const id = text.toLowerCase().replace(/[^\w]+/g, '-')
+        
+        const item = { id, title: text, level, children: [] }
+        
+        if (level <= 2) {
           extractedHeadings.push(item)
+          currentChapter = item
+        } else if (level === 3) {
+          if (currentChapter) {
+            currentChapter.children.push(item)
+          } else {
+            extractedHeadings.push(item)
+          }
         }
+      })
+      
+      setHeadings(extractedHeadings)
+      if (extractedHeadings.length > 0) {
+        setOpenSections([extractedHeadings[0].id])
       }
-    })
-    setHeadings(extractedHeadings)
-    if (extractedHeadings.length > 0) {
-      setOpenSections([extractedHeadings[0].id])
-    }
-  }, [currentContent, currentPage])
+    }, 0)
+    
+    return () => { isCancelled = true }
+  }, [strippedContent, currentPage])
 
   // Theme persistence
   useEffect(() => {
@@ -280,8 +366,7 @@ function App() {
         const scrollTop = window.scrollY
         const docHeight = document.documentElement.scrollHeight - window.innerHeight
         const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0
-        setScrollProgress(progress)
-        setShowScrollTop(scrollTop > 400)
+        setScrollState({ scrollProgress: progress, showScrollTop: scrollTop > 400 })
         ticking = false
       })
     }
@@ -325,45 +410,50 @@ function App() {
     }
 
     const query = searchQuery.toLowerCase()
-    const contentWithoutCode = currentContent.replace(/```[\s\S]*?```/g, '')
-    const matches = [...contentWithoutCode.matchAll(/^(#{1,3})\s+(.+)$/gm)]
     
-    const results = matches
-      .filter(m => m[2].toLowerCase().includes(query))
-      .map(m => ({
-        level: m[1].length,
-        title: m[2],
-        id: m[2].toLowerCase().replace(/[^\w]+/g, '-')
-      }))
-      .slice(0, 15)
-    
-    setSearchResults(results)
-    setShowSearch(results.length > 0 || searchQuery.length > 0)
-  }, [searchQuery, currentContent])
+    const timer = setTimeout(() => {
+      const matches = [...strippedContent.matchAll(/^(#{1,3})\s+(.+)$/gm)]
+      
+      const results = matches
+        .filter(m => m[2].toLowerCase().includes(query))
+        .map(m => ({
+          level: m[1].length,
+          title: m[2],
+          id: m[2].toLowerCase().replace(/[^\w]+/g, '-')
+        }))
+        .slice(0, 15)
+      
+      setSearchResults(results)
+      setShowSearch(results.length > 0 || searchQuery.length > 0)
+    }, 200)
 
-  // Intersection Observer for scroll-spy
-  const extractText = (children) => {
-    if (typeof children === 'string' || typeof children === 'number') return String(children)
-    if (Array.isArray(children)) return children.map(extractText).join('')
-    if (children?.props?.children) return extractText(children.props.children)
-    return ''
-  }
+    return () => clearTimeout(timer)
+  }, [searchQuery, strippedContent])
 
+  // Intersection Observer for scroll-spy - OPTIMIZED
   useEffect(() => {
+    // Throttle observer updates
+    let timeoutId = null
+    
     const handleObserver = (entries) => {
-      let currentActiveId = null
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          currentActiveId = entry.target.id
+      if (timeoutId) return
+      
+      timeoutId = setTimeout(() => {
+        let currentActiveId = null
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            currentActiveId = entry.target.id
+          }
+        })
+        if (currentActiveId) {
+          setActiveSection(currentActiveId)
+          const parent = headings.find(h => h.children.some(c => c.id === currentActiveId))
+          if (parent) {
+            setOpenSections(prev => prev.includes(parent.id) ? prev : [...prev, parent.id])
+          }
         }
-      })
-      if (currentActiveId) {
-        setActiveSection(currentActiveId)
-        const parent = headings.find(h => h.children.some(c => c.id === currentActiveId))
-        if (parent) {
-          setOpenSections(prev => prev.includes(parent.id) ? prev : [...prev, parent.id])
-        }
-      }
+        timeoutId = null
+      }, 150)
     }
 
     const observer = new IntersectionObserver(handleObserver, {
@@ -372,36 +462,21 @@ function App() {
       threshold: 0
     })
 
-    const contentArea = document.querySelector('.content-area')
-    const observedElements = new Set()
-
+    // Observe headings only after content loads
     const observeHeadings = () => {
       const elements = document.querySelectorAll('.heading-observe')
-      elements.forEach((elem) => {
-        if (!observedElements.has(elem)) {
-          observer.observe(elem)
-          observedElements.add(elem)
-        }
-      })
+      elements.forEach(elem => observer.observe(elem))
     }
 
-    // Use MutationObserver only briefly to catch initial render, then disconnect
-    const mutationObserver = new MutationObserver(observeHeadings)
-    if (contentArea) {
-      mutationObserver.observe(contentArea, { childList: true, subtree: true })
-      observeHeadings()
-      // Disconnect MutationObserver after content settles (500ms)
-      setTimeout(() => {
-        mutationObserver.disconnect()
-        observeHeadings() // One final pass
-      }, 500)
-    }
+    // Delay initial observation
+    const initTimeout = setTimeout(observeHeadings, 300)
 
     return () => {
+      clearTimeout(initTimeout)
+      if (timeoutId) clearTimeout(timeoutId)
       observer.disconnect()
-      mutationObserver.disconnect()
     }
-  }, [currentContent, headings])
+  }, [currentContent, headings, currentPage])
 
   const toggleSection = (id) => {
     setOpenSections(prev =>
@@ -425,6 +500,71 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Image zoom/lightbox functions
+  const openLightbox = (imageSrc) => {
+    setLightboxImage(imageSrc)
+    setImageZoom(1)
+    document.body.style.overflow = 'hidden'
+  }
+
+  const closeLightbox = () => {
+    setLightboxImage(null)
+    setImageZoom(1)
+    document.body.style.overflow = 'auto'
+  }
+
+  const zoomIn = () => {
+    setImageZoom(prev => Math.min(parseFloat((prev + 0.25).toFixed(2)), 4))
+  }
+
+  const zoomOut = () => {
+    setImageZoom(prev => Math.max(parseFloat((prev - 0.25).toFixed(2)), 0.25))
+  }
+
+  const resetZoom = () => {
+    setImageZoom(1)
+  }
+
+  // Close lightbox on ESC key
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && lightboxImage) {
+        closeLightbox()
+      }
+    }
+    window.addEventListener('keydown', handleEscape)
+    return () => window.removeEventListener('keydown', handleEscape)
+  }, [lightboxImage])
+
+  // Mouse wheel zoom in lightbox
+  useEffect(() => {
+    if (!lightboxImage) return
+    const handleWheel = (e) => {
+      e.preventDefault()
+      const delta = e.deltaY < 0 ? 0.1 : -0.1
+      setImageZoom(prev => {
+        const next = parseFloat((prev + delta).toFixed(2))
+        return Math.min(Math.max(next, 0.25), 4)
+      })
+    }
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    return () => window.removeEventListener('wheel', handleWheel)
+  }, [lightboxImage])
+
+  // Handle image clicks to open lightbox
+  useEffect(() => {
+    const handleImageClick = (e) => {
+      if (e.target.tagName === 'IMG' && e.target.closest('.content-area')) {
+        e.preventDefault()
+        openLightbox(e.target.src)
+      }
+    }
+    document.addEventListener('click', handleImageClick)
+    return () => document.removeEventListener('click', handleImageClick)
+  }, [])
+
+  // Track which service section we're in
+  
   // Markdown rendering components — memoized to avoid recreating on every render
   const components = useMemo(() => ({
     h1: ({ node: _node, children, ...props }) => {
@@ -435,6 +575,17 @@ function App() {
     h2: ({ node: _node, children, ...props }) => {
       const text = extractText(children).trim()
       const id = text.toLowerCase().replace(/[^\w]+/g, '-')
+      
+      // Insert Service Model Diagram after Cloud Service Models heading
+      if (text.includes("Cloud Service Models")) {
+        return (
+          <div id={id} className="scroll-mt-24 heading-observe">
+            <h2 {...props}>{children}</h2>
+            <ServiceModelDiagram />
+          </div>
+        )
+      }
+      
       if (text.includes("How Git Works Internally")) {
         return (
           <div id={id} className="scroll-mt-24 heading-observe">
@@ -458,14 +609,11 @@ function App() {
       return <code className={className} {...props}>{children}</code>
     },
     pre: ({ children }) => {
-      // If the child is already a CodeBlock, just render it directly
       if (children?.type === CodeBlock) return children
       return <pre>{children}</pre>
     },
     strong: ({ node, ...props }) => <strong {...props} />,
     em: ({ node, ...props }) => <em {...props} />,
-    // Plain blockquote — no Framer Motion animation (was causing massive perf hit
-    // by creating an IntersectionObserver for EVERY blockquote on the page)
     blockquote: ({ node, ...props }) => <blockquote {...props} />,
   }), [])
 
@@ -576,7 +724,7 @@ function App() {
                 <motion.div
                   className="sidebar-container"
                   initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 280, opacity: 1 }}
+                  animate={{ width: 220, opacity: 1 }}
                   exit={{ width: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}
                 >
@@ -663,7 +811,7 @@ function App() {
           {currentPage === 'interview' ? (
             <InterviewPage content={currentContent} />
           ) : (
-            <ReactMarkdown components={components}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
               {currentContent}
             </ReactMarkdown>
           )}
@@ -684,6 +832,43 @@ function App() {
           >
             <ArrowUp size={20} />
           </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Image Lightbox */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            className="image-lightbox"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+          >
+            <button className="image-lightbox-close" onClick={closeLightbox} title="Close (ESC)">
+              <X size={24} />
+            </button>
+
+            <img
+              src={lightboxImage}
+              alt="Zoomed"
+              style={{ transform: `scale(${imageZoom})`, transformOrigin: 'center center' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <div className="image-lightbox-controls" onClick={(e) => e.stopPropagation()}>
+              <button className="lightbox-control-btn" onClick={zoomOut} title="Zoom Out (scroll down)">
+                −
+              </button>
+              <button className="lightbox-control-btn reset" onClick={resetZoom} title="Reset Zoom">
+                ⟲
+              </button>
+              <span className="lightbox-zoom-label">{Math.round(imageZoom * 100)}%</span>
+              <button className="lightbox-control-btn" onClick={zoomIn} title="Zoom In (scroll up)">
+                +
+              </button>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
