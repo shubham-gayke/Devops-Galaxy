@@ -8,6 +8,7 @@ import { BookOpen, GitBranch, Cloud, Server, HelpCircle, Menu, X, ChevronLeft, C
 import { motion, AnimatePresence } from 'framer-motion'
 import Workflow from './Workflow'
 import ServiceModelDiagram from './ServiceModelDiagram'
+import VPCArchitectureDiagram from './VPCArchitectureDiagram'
 
 // Import markdown files
 import gitNotesContent from './Git_GitHub_Complete_Notes.md?raw'
@@ -594,6 +595,16 @@ function App() {
           </div>
         )
       }
+
+      if (text.includes("Architecture Diagram - VPC")) {
+        return (
+          <div id={id} className="scroll-mt-24 heading-observe">
+            <h2 {...props}>{children}</h2>
+            <VPCArchitectureDiagram />
+          </div>
+        )
+      }
+
       return <h2 id={id} className="scroll-mt-24 heading-observe" {...props}>{children}</h2>
     },
     h3: ({ node: _node, children, ...props }) => {

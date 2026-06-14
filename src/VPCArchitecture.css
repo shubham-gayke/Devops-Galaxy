@@ -1,0 +1,374 @@
+/* ===================== VPC Architecture Diagram Styles ===================== */
+
+.vpc-diagram-wrapper {
+  margin: 2rem 0;
+  font-family: 'Inter', sans-serif;
+}
+
+.vpc-diagram-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text, #e2e8f0);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vpc-badge {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Flow buttons */
+.vpc-flow-buttons {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+
+.vpc-flow-btn {
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Inter', sans-serif;
+}
+
+.vpc-flow-btn:hover {
+  border-color: var(--flow-color, #3b82f6);
+  color: var(--flow-color, #3b82f6);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.vpc-flow-btn.active {
+  background: var(--flow-color, #3b82f6);
+  border-color: var(--flow-color, #3b82f6);
+  color: white;
+  box-shadow: 0 0 16px color-mix(in srgb, var(--flow-color) 40%, transparent);
+}
+
+/* Flow description */
+.vpc-flow-desc {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 1rem;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Main diagram ===== */
+.vpc-diagram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Internet section */
+.vpc-internet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.vpc-cloud-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 12px rgba(148,163,184,0.4));
+}
+
+.vpc-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vpc-arrow-down {
+  width: 2px;
+  height: 32px;
+  background: rgba(148,163,184,0.25);
+  position: relative;
+  transition: background 0.3s;
+}
+
+.vpc-arrow-down.lit {
+  background: var(--lit-color, #3b82f6);
+  box-shadow: 0 0 8px var(--lit-color, #3b82f6);
+}
+
+.vpc-arrow-down.lit-up {
+  background: var(--lit-color, #f59e0b);
+  box-shadow: 0 0 8px var(--lit-color, #f59e0b);
+}
+
+.vpc-arrow-down::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid rgba(148,163,184,0.3);
+}
+
+/* VPC Boundary */
+.vpc-boundary {
+  border: 2px solid rgba(59,130,246,0.4);
+  border-radius: 16px;
+  padding: 1rem;
+  width: 100%;
+  max-width: 760px;
+  position: relative;
+  background: rgba(59,130,246,0.03);
+  box-shadow: 0 0 32px rgba(59,130,246,0.08);
+}
+
+.vpc-boundary-label {
+  position: absolute;
+  top: -12px;
+  left: 16px;
+  background: var(--bg, #0f172a);
+  padding: 0 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #3b82f6;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* IGW row */
+.vpc-igw-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* AZ row */
+.vpc-az-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.vpc-az {
+  border: 1px dashed rgba(96,165,250,0.3);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: rgba(96,165,250,0.02);
+}
+
+.vpc-az-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.6rem;
+}
+
+/* Subnets */
+.vpc-subnet {
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.vpc-subnet.public {
+  border: 1px solid rgba(34,197,94,0.35);
+  background: rgba(34,197,94,0.04);
+}
+
+.vpc-subnet.private-app {
+  border: 1px solid rgba(251,191,36,0.3);
+  background: rgba(251,191,36,0.03);
+}
+
+.vpc-subnet.private-db {
+  border: 1px solid rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.03);
+}
+
+.vpc-subnet-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.2px;
+}
+
+.vpc-subnet-resources {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* VPC Component boxes */
+.vpc-component {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text-muted, #94a3b8);
+  transition: all 0.35s ease;
+  white-space: nowrap;
+}
+
+.vpc-component.igw {
+  padding: 0.4rem 1.2rem;
+  font-size: 0.75rem;
+  border-color: rgba(59,130,246,0.3);
+  color: #93c5fd;
+}
+
+.vpc-component.alb   { border-color: rgba(34,211,238,0.3); color: #67e8f9; }
+.vpc-component.nat-gw { border-color: rgba(251,191,36,0.3); color: #fcd34d; }
+.vpc-component.ec2   { border-color: rgba(167,139,250,0.3); color: #c4b5fd; }
+.vpc-component.rds   { border-color: rgba(239,68,68,0.3); color: #fca5a5; }
+.vpc-component.rds.standby { opacity: 0.65; }
+.vpc-component.endpoint { border-color: rgba(16,185,129,0.3); color: #6ee7b7; font-size: 0.72rem; }
+.vpc-component.s3   { border-color: rgba(16,185,129,0.35); color: #6ee7b7; padding: 0.4rem 1.2rem; font-size: 0.75rem; }
+
+/* Active glow states */
+.vpc-component.active-blue {
+  border-color: #3b82f6;
+  color: #93c5fd;
+  background: rgba(59,130,246,0.15);
+  box-shadow: 0 0 12px rgba(59,130,246,0.4);
+  transform: scale(1.04);
+}
+
+.vpc-component.active-amber {
+  border-color: #f59e0b;
+  color: #fcd34d;
+  background: rgba(245,158,11,0.15);
+  box-shadow: 0 0 12px rgba(245,158,11,0.4);
+  transform: scale(1.04);
+}
+
+.vpc-component.active-green {
+  border-color: #10b981;
+  color: #6ee7b7;
+  background: rgba(16,185,129,0.15);
+  box-shadow: 0 0 12px rgba(16,185,129,0.4);
+  transform: scale(1.04);
+}
+
+/* Endpoint row */
+.vpc-endpoint-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.25rem;
+}
+
+/* S3 row (outside VPC) */
+.vpc-s3-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed rgba(16,185,129,0.25);
+  width: 100%;
+  max-width: 760px;
+}
+
+/* Legend */
+.vpc-legend {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  max-width: 760px;
+  width: 100%;
+}
+
+.vpc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+.public-dot   { background: rgba(34,197,94,0.6); border: 1px solid #22c55e; }
+.app-dot      { background: rgba(251,191,36,0.5); border: 1px solid #fbbf24; }
+.db-dot       { background: rgba(239,68,68,0.4); border: 1px solid #ef4444; }
+.igw-dot      { background: rgba(59,130,246,0.5); border: 1px solid #3b82f6; }
+
+/* Key Facts */
+.vpc-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  max-width: 760px;
+  width: 100%;
+}
+
+.vpc-fact {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  padding: 0.5rem 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border-left: 3px solid rgba(59,130,246,0.4);
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+
+.fact-icon {
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .vpc-az-row {
+    grid-template-columns: 1fr;
+  }
+  .vpc-flow-buttons {
+    flex-direction: column;
+  }
+  .vpc-flow-btn {
+    text-align: left;
+  }
+}
