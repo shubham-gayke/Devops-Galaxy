@@ -1,374 +1,368 @@
-/* ===================== VPC Architecture Diagram Styles ===================== */
+/* VPCArchitecture.css — VPC-specific layout (clean, no emoji) */
 
-.vpc-diagram-wrapper {
-  margin: 2rem 0;
-  font-family: 'Inter', sans-serif;
+.vpc-wrap { --nd-prim: #00d4ff; }
+
+.vpc-title {
+  background: linear-gradient(135deg, #00d4ff, #00ff88) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
-.vpc-diagram-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--text, #e2e8f0);
-  margin-bottom: 1.2rem;
+.vpc-bar-icon {
+  font-size: 0.6rem !important;
+  font-weight: 900 !important;
+  color: #00d4ff !important;
+  border: 1.5px solid #00d4ff !important;
+  border-radius: 4px !important;
+  padding: 0.1rem 0.3rem !important;
+  background: rgba(0,212,255,0.1) !important;
+  letter-spacing: 1px !important;
+}
+
+.vpc-playbtn {
+  border-color: #00d4ff !important;
+  color: #00d4ff !important;
+}
+.vpc-playbtn:hover {
+  background: #00d4ff !important;
+  color: #050510 !important;
+  box-shadow: 0 0 14px #00d4ff !important;
+}
+
+/* ── CENTER COLUMN ── */
+.vpc-center {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
-.vpc-badge {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-/* Flow buttons */
-.vpc-flow-buttons {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.8rem;
-}
-
-.vpc-flow-btn {
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.15);
-  background: rgba(255,255,255,0.05);
-  color: var(--text-muted, #94a3b8);
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  font-family: 'Inter', sans-serif;
-}
-
-.vpc-flow-btn:hover {
-  border-color: var(--flow-color, #3b82f6);
-  color: var(--flow-color, #3b82f6);
-  background: rgba(59, 130, 246, 0.08);
-}
-
-.vpc-flow-btn.active {
-  background: var(--flow-color, #3b82f6);
-  border-color: var(--flow-color, #3b82f6);
-  color: white;
-  box-shadow: 0 0 16px color-mix(in srgb, var(--flow-color) 40%, transparent);
-}
-
-/* Flow description */
-.vpc-flow-desc {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid;
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  font-size: 0.82rem;
-  color: var(--text-muted, #94a3b8);
-  margin-bottom: 1rem;
-  animation: fadeSlideIn 0.3s ease;
-}
-
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== Main diagram ===== */
-.vpc-diagram {
+/* Internet / IGW wrap */
+.vpc-inet-wrap {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0;
 }
 
-/* Internet section */
-.vpc-internet {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 0;
-}
-
-.vpc-cloud-icon {
-  font-size: 2rem;
-  filter: drop-shadow(0 0 12px rgba(148,163,184,0.4));
-}
-
-.vpc-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted, #94a3b8);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.vpc-arrow-down {
-  width: 2px;
-  height: 32px;
-  background: rgba(148,163,184,0.25);
-  position: relative;
-  transition: background 0.3s;
-}
-
-.vpc-arrow-down.lit {
-  background: var(--lit-color, #3b82f6);
-  box-shadow: 0 0 8px var(--lit-color, #3b82f6);
-}
-
-.vpc-arrow-down.lit-up {
-  background: var(--lit-color, #f59e0b);
-  box-shadow: 0 0 8px var(--lit-color, #f59e0b);
-}
-
-.vpc-arrow-down::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 7px solid rgba(148,163,184,0.3);
-}
-
-/* VPC Boundary */
-.vpc-boundary {
-  border: 2px solid rgba(59,130,246,0.4);
-  border-radius: 16px;
-  padding: 1rem;
-  width: 100%;
-  max-width: 760px;
-  position: relative;
-  background: rgba(59,130,246,0.03);
-  box-shadow: 0 0 32px rgba(59,130,246,0.08);
-}
-
-.vpc-boundary-label {
-  position: absolute;
-  top: -12px;
-  left: 16px;
-  background: var(--bg, #0f172a);
-  padding: 0 8px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #3b82f6;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-
-/* IGW row */
-.vpc-igw-row {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-/* AZ row */
-.vpc-az-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-.vpc-az {
-  border: 1px dashed rgba(96,165,250,0.3);
-  border-radius: 12px;
-  padding: 0.75rem;
-  background: rgba(96,165,250,0.02);
-}
-
-.vpc-az-label {
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #60a5fa;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.6rem;
-}
-
-/* Subnets */
-.vpc-subnet {
-  border-radius: 8px;
-  padding: 0.5rem 0.6rem;
-  margin-bottom: 0.5rem;
-}
-
-.vpc-subnet.public {
-  border: 1px solid rgba(34,197,94,0.35);
-  background: rgba(34,197,94,0.04);
-}
-
-.vpc-subnet.private-app {
-  border: 1px solid rgba(251,191,36,0.3);
-  background: rgba(251,191,36,0.03);
-}
-
-.vpc-subnet.private-db {
-  border: 1px solid rgba(239,68,68,0.25);
-  background: rgba(239,68,68,0.03);
-}
-
-.vpc-subnet-label {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-muted, #94a3b8);
-  margin-bottom: 0.4rem;
-  letter-spacing: 0.2px;
-}
-
-.vpc-subnet-resources {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-/* VPC Component boxes */
-.vpc-component {
+.vpc-inet {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.3rem 0.5rem;
+  padding: 0.28rem 0.9rem;
+  border-radius: 20px;
+  border: 1px dashed rgba(0,212,255,0.35);
+  background: rgba(0,212,255,0.04);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #00d4ff;
+  transition: all 0.3s;
+}
+.vpc-inet-glow {
+  border-color: #00d4ff;
+  box-shadow: 0 0 14px rgba(0,212,255,0.3);
+}
+
+.vpc-igw {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.28rem 0.55rem;
   border-radius: 6px;
-  font-size: 0.7rem;
+  border: 1px solid rgba(0,212,255,0.25);
+  background: rgba(0,212,255,0.04);
+  font-size: 0.54rem;
   font-weight: 600;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: var(--text-muted, #94a3b8);
-  transition: all 0.35s ease;
-  white-space: nowrap;
+  color: #94a3b8;
+  transition: all 0.3s;
+}
+.vpc-igw-glow {
+  border-color: #00d4ff;
+  box-shadow: 0 0 12px rgba(0,212,255,0.3);
+  color: #00d4ff;
+}
+.vpc-igw-badge {
+  font-size: 0.5rem;
+  font-weight: 900;
+  color: #050510;
+  background: #00d4ff;
+  padding: 0.08rem 0.25rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
 }
 
-.vpc-component.igw {
-  padding: 0.4rem 1.2rem;
-  font-size: 0.75rem;
-  border-color: rgba(59,130,246,0.3);
-  color: #93c5fd;
+/* VPC boundary box */
+.vpc-box {
+  border-color: rgba(0,212,255,0.25) !important;
+  background: rgba(5,5,20,0.7) !important;
+  padding: 0.55rem !important;
 }
 
-.vpc-component.alb   { border-color: rgba(34,211,238,0.3); color: #67e8f9; }
-.vpc-component.nat-gw { border-color: rgba(251,191,36,0.3); color: #fcd34d; }
-.vpc-component.ec2   { border-color: rgba(167,139,250,0.3); color: #c4b5fd; }
-.vpc-component.rds   { border-color: rgba(239,68,68,0.3); color: #fca5a5; }
-.vpc-component.rds.standby { opacity: 0.65; }
-.vpc-component.endpoint { border-color: rgba(16,185,129,0.3); color: #6ee7b7; font-size: 0.72rem; }
-.vpc-component.s3   { border-color: rgba(16,185,129,0.35); color: #6ee7b7; padding: 0.4rem 1.2rem; font-size: 0.75rem; }
-
-/* Active glow states */
-.vpc-component.active-blue {
-  border-color: #3b82f6;
-  color: #93c5fd;
-  background: rgba(59,130,246,0.15);
-  box-shadow: 0 0 12px rgba(59,130,246,0.4);
-  transform: scale(1.04);
-}
-
-.vpc-component.active-amber {
-  border-color: #f59e0b;
-  color: #fcd34d;
-  background: rgba(245,158,11,0.15);
-  box-shadow: 0 0 12px rgba(245,158,11,0.4);
-  transform: scale(1.04);
-}
-
-.vpc-component.active-green {
-  border-color: #10b981;
-  color: #6ee7b7;
-  background: rgba(16,185,129,0.15);
-  box-shadow: 0 0 12px rgba(16,185,129,0.4);
-  transform: scale(1.04);
-}
-
-/* Endpoint row */
-.vpc-endpoint-row {
+.vpc-box-hdr {
   display: flex;
-  justify-content: center;
-  margin-top: 0.25rem;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+  border-bottom: 1px solid rgba(0,212,255,0.12);
+  padding-bottom: 0.25rem;
+}
+.vpc-hdr-vpc {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #00d4ff;
+  letter-spacing: 1px;
+}
+.vpc-hdr-cidr {
+  font-size: 0.52rem;
+  color: #475569;
+  font-weight: 400;
+}
+.vpc-az-tag {
+  font-size: 0.45rem;
+  font-weight: 700;
+  border: 1px dashed;
+  padding: 0.05rem 0.28rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+.vpc-az-a { color: #00ff88; border-color: rgba(0,255,136,0.35); }
+.vpc-az-b { color: #00d4ff; border-color: rgba(0,212,255,0.35); }
+
+/* 3-col inner grid */
+.vpc-inner-grid {
+  display: grid;
+  grid-template-columns: 1fr 130px 1fr;
+  gap: 0.45rem;
+  align-items: start;
 }
 
-/* S3 row (outside VPC) */
-.vpc-s3-row {
+/* AZ columns */
+.vpc-az { display: flex; flex-direction: column; gap: 0; }
+
+/* Subnets */
+.vpc-subnet {
+  border-radius: 6px;
+  border: 1px dashed;
+  padding: 0.35rem 0.4rem;
+  transition: all 0.3s;
+}
+.vpc-sub-lbl {
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  line-height: 1.3;
+}
+.vpc-sub-cidr {
+  font-size: 0.43rem;
+  color: #475569;
+  margin-bottom: 0.25rem;
+  font-weight: 400;
+}
+
+.vpc-pub  { border-color: rgba(0,255,136,0.3);  background: rgba(0,255,136,0.02);  }
+.vpc-priv { border-color: rgba(255,107,53,0.3);  background: rgba(255,107,53,0.02); }
+.vpc-db   { border-color: rgba(168,85,247,0.3);  background: rgba(168,85,247,0.02); }
+
+.vpc-pub-glow  { border-color: #00ff88 !important; box-shadow: 0 0 8px rgba(0,255,136,0.2);  }
+.vpc-priv-glow { border-color: #ff6b35 !important; box-shadow: 0 0 8px rgba(255,107,53,0.2); }
+.vpc-db-glow   { border-color: #a855f7 !important; box-shadow: 0 0 8px rgba(168,85,247,0.2); }
+
+/* ALB badge */
+.vpc-alb {
+  display: inline-block;
+  font-size: 0.48rem;
+  font-weight: 900;
+  color: #050510;
+  background: #00ff88;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+.vpc-alb-glow { box-shadow: 0 0 8px rgba(0,255,136,0.5); }
+
+/* EC2 badges */
+.vpc-ec2-pair {
   display: flex;
-  justify-content: center;
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed rgba(16,185,129,0.25);
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.2rem 0.25rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255,107,53,0.2);
+  background: rgba(255,107,53,0.04);
+  transition: all 0.3s;
+}
+.vpc-ec2-badge {
+  font-size: 0.44rem;
+  font-weight: 900;
+  color: #050510;
+  background: #ff6b35;
+  padding: 0.08rem 0.22rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+}
+.vpc-ec2-glow { border-color: #ff6b35 !important; box-shadow: 0 0 8px rgba(255,107,53,0.3); }
+
+/* RDS badge */
+.vpc-rds {
+  display: inline-block;
+  font-size: 0.44rem;
+  font-weight: 900;
+  color: #050510;
+  background: #a855f7;
+  padding: 0.08rem 0.28rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s;
+}
+.vpc-rds-glow { box-shadow: 0 0 8px rgba(168,85,247,0.5); }
+
+/* Vertical arrow helper */
+.vpc-sv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 14px;
+}
+
+/* ── CENTER COLUMN: Route Tables + NAT ── */
+.vpc-rtables {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.vpc-rt {
+  border-radius: 6px;
+  border: 1px solid rgba(0,212,255,0.2);
+  background: rgba(0,212,255,0.03);
+  padding: 0.35rem 0.4rem;
+  transition: all 0.3s;
   width: 100%;
-  max-width: 760px;
+  box-sizing: border-box;
 }
+.vpc-rt-glow {
+  border-color: #00d4ff !important;
+  box-shadow: 0 0 10px rgba(0,212,255,0.25);
+}
+.vpc-rt-hdr {
+  font-size: 0.48rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Route table rows (div-based — no overflow issues) */
+.vpc-rtrow {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.44rem;
+  padding: 0.1rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  overflow: hidden;
+}
+.vpc-rtrow:last-child { border-bottom: none; }
+.vpc-rtdest {
+  color: #64748b;
+  flex-shrink: 0;
+  min-width: 0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.42rem;
+}
+.vpc-rtarrow { color: #334155; flex-shrink: 0; }
+.vpc-rttarget {
+  font-weight: 700;
+  font-size: 0.44rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* NAT Gateway */
+.vpc-nat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,140,0,0.3);
+  background: rgba(255,140,0,0.04);
+  transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.vpc-nat-glow { border-color: #ff8c00 !important; box-shadow: 0 0 10px rgba(255,140,0,0.3); }
+.vpc-nat-badge {
+  font-size: 0.44rem;
+  font-weight: 900;
+  color: #050510;
+  background: #ff8c00;
+  padding: 0.08rem 0.22rem;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+.vpc-nat-title { font-size: 0.5rem; font-weight: 700; color: #ff8c00; }
+.vpc-nat-sub   { font-size: 0.42rem; color: #475569; }
+
+/* ── SECURITY ── */
+.vpc-sec { margin-top: 0; }
+.vpc-sec-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.4rem;
+}
+.vpc-sec-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  text-align: center;
+  padding: 0.35rem 0.2rem;
+  border-radius: 5px;
+  border: 1px solid rgba(255,0,110,0.12);
+  background: rgba(255,0,110,0.03);
+}
+.vpc-sec-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255,0,110,0.15);
+  border: 1px solid rgba(255,0,110,0.4);
+  color: #ff006e;
+  font-size: 0.52rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vpc-sec-name { font-size: 0.52rem; font-weight: 700; color: #e2e8f0; }
+.vpc-sec-desc { font-size: 0.44rem; color: #64748b; }
 
 /* Legend */
 .vpc-legend {
   display: flex;
-  gap: 1.2rem;
+  gap: 0.75rem;
+  align-items: center;
   flex-wrap: wrap;
-  margin-top: 1rem;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  max-width: 760px;
-  width: 100%;
+  padding-top: 0.3rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
-
 .vpc-legend-item {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.72rem;
-  color: var(--text-muted, #94a3b8);
+  gap: 0.25rem;
+  font-size: 0.47rem;
+  color: #64748b;
 }
-
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
-}
-.public-dot   { background: rgba(34,197,94,0.6); border: 1px solid #22c55e; }
-.app-dot      { background: rgba(251,191,36,0.5); border: 1px solid #fbbf24; }
-.db-dot       { background: rgba(239,68,68,0.4); border: 1px solid #ef4444; }
-.igw-dot      { background: rgba(59,130,246,0.5); border: 1px solid #3b82f6; }
-
-/* Key Facts */
-.vpc-facts {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  max-width: 760px;
-  width: 100%;
-}
-
-.vpc-fact {
-  font-size: 0.78rem;
-  color: var(--text-muted, #94a3b8);
-  padding: 0.5rem 0.8rem;
-  background: rgba(255,255,255,0.03);
-  border-left: 3px solid rgba(59,130,246,0.4);
-  border-radius: 0 6px 6px 0;
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-  line-height: 1.5;
-}
-
-.fact-icon {
-  flex-shrink: 0;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .vpc-az-row {
-    grid-template-columns: 1fr;
-  }
-  .vpc-flow-buttons {
-    flex-direction: column;
-  }
-  .vpc-flow-btn {
-    text-align: left;
-  }
+.vpc-legend-line {
+  width: 18px;
+  height: 2px;
+  border-radius: 1px;
 }

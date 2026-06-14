@@ -8,6 +8,8 @@ import { BookOpen, GitBranch, Cloud, Server, HelpCircle, Menu, X, ChevronLeft, C
 import { motion, AnimatePresence } from 'framer-motion'
 import Workflow from './Workflow'
 import ServiceModelDiagram from './ServiceModelDiagram'
+import IAMArchitectureDiagram from './IAMArchitectureDiagram'
+import EC2RequestFlow from './components/EC2RequestFlow'
 import VPCArchitectureDiagram from './VPCArchitectureDiagram'
 
 // Import markdown files
@@ -268,6 +270,18 @@ const extractText = (children) => {
   return ''
 }
 
+// Strip emoji and decoration characters from heading text
+const stripEmoji = (text) => {
+  return text
+    // Surrogate-pair emoji (\uD800-\uDBFF paired with \uDC00-\uDFFF)
+    .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '')
+    // Common single-codepoint symbols: stars, arrows, checkmarks, misc symbols
+    .replace(/[\u2600-\u27BF\u2B00-\u2BFF\u3000-\u303F\uFE00-\uFEFF\u200D]/g, '')
+    // Collapse multiple spaces into one (left after removal)
+    .replace(/  +/g, ' ')
+    .trim()
+}
+
 const pages = {
   git: { content: gitNotesContent, label: 'Git & GitHub', icon: GitBranch },
   terraform: { content: terraformNotesContent, label: 'Terraform', icon: Cloud },
@@ -320,7 +334,7 @@ function App() {
 
       headingMatches.forEach((match) => {
         const level = match[1].length
-        const text = match[2]
+        const text = stripEmoji(match[2])
         const id = text.toLowerCase().replace(/[^\w]+/g, '-')
         
         const item = { id, title: text, level, children: [] }
@@ -569,19 +583,19 @@ function App() {
   // Markdown rendering components — memoized to avoid recreating on every render
   const components = useMemo(() => ({
     h1: ({ node: _node, children, ...props }) => {
-      const text = extractText(children).trim()
+      const text = stripEmoji(extractText(children).trim())
       const id = text.toLowerCase().replace(/[^\w]+/g, '-')
-      return <h1 id={id} className="scroll-mt-24 heading-observe" {...props}>{children}</h1>
+      return <h1 id={id} className="scroll-mt-24 heading-observe" {...props}>{text}</h1>
     },
     h2: ({ node: _node, children, ...props }) => {
-      const text = extractText(children).trim()
+      const text = stripEmoji(extractText(children).trim())
       const id = text.toLowerCase().replace(/[^\w]+/g, '-')
       
       // Insert Service Model Diagram after Cloud Service Models heading
       if (text.includes("Cloud Service Models")) {
         return (
           <div id={id} className="scroll-mt-24 heading-observe">
-            <h2 {...props}>{children}</h2>
+            <h2 {...props}>{text}</h2>
             <ServiceModelDiagram />
           </div>
         )
@@ -590,8 +604,32 @@ function App() {
       if (text.includes("How Git Works Internally")) {
         return (
           <div id={id} className="scroll-mt-24 heading-observe">
-            <h2 {...props}>{children}</h2>
+            <h2 {...props}>{text}</h2>
             <Workflow />
+          </div>
+        )
+      }
+
+      return <h2 id={id} className="scroll-mt-24 heading-observe" {...props}>{text}</h2>
+    },
+    h3: ({ node: _node, children, ...props }) => {
+      const text = stripEmoji(extractText(children).trim())
+      const id = text.toLowerCase().replace(/[^\w]+/g, '-')
+
+      if (text.includes("Architecture Diagram - IAM")) {
+        return (
+          <div id={id} className="scroll-mt-24 heading-observe">
+            <h3 {...props}>{text}</h3>
+            <IAMArchitectureDiagram />
+          </div>
+        )
+      }
+
+      if (text.includes("Architecture Diagram - EC2")) {
+        return (
+          <div id={id} className="scroll-mt-24 heading-observe">
+            <h3 {...props}>{text}</h3>
+            <EC2RequestFlow />
           </div>
         )
       }
@@ -599,18 +637,13 @@ function App() {
       if (text.includes("Architecture Diagram - VPC")) {
         return (
           <div id={id} className="scroll-mt-24 heading-observe">
-            <h2 {...props}>{children}</h2>
+            <h3 {...props}>{text}</h3>
             <VPCArchitectureDiagram />
           </div>
         )
       }
 
-      return <h2 id={id} className="scroll-mt-24 heading-observe" {...props}>{children}</h2>
-    },
-    h3: ({ node: _node, children, ...props }) => {
-      const text = extractText(children).trim()
-      const id = text.toLowerCase().replace(/[^\w]+/g, '-')
-      return <h3 id={id} className="mt-6 mb-3 scroll-mt-24 heading-observe" {...props}>{children}</h3>
+      return <h3 id={id} className="mt-6 mb-3 scroll-mt-24 heading-observe" {...props}>{text}</h3>
     },
     code: ({ node, inline, className, children, ...props }) => {
       const match = /language-(\w+)/.exec(className || '')

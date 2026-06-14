@@ -1,287 +1,339 @@
-import React, { useState, useEffect } from 'react';
-import './IAMArchitecture.css';
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import './NeonDiagram.css'
+import './IAMArchitecture.css'
 
-const IAMArchitectureDiagram = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true);
+const STEPS = [
+  { n:1, title:'Create Users',         desc:'Create IAM users for people or applications.'              },
+  { n:2, title:'Create Groups',        desc:'Organize users by adding them to groups.'                  },
+  { n:3, title:'Attach Policies',      desc:'Attach policies to users/groups to define permissions.'    },
+  { n:4, title:'Authenticate',         desc:'Users authenticate via password, MFA or access keys.'      },
+  { n:5, title:'Access AWS Resources', desc:'IAM authorizes the request based on attached policies.'    },
+  { n:6, title:'Monitor & Audit',      desc:'Track activity using CloudTrail and IAM Access Analyzer.'  },
+  { n:7, title:'Review & Refine',      desc:'Review permissions regularly and follow least privilege.'  },
+]
 
-  const steps = [
-    {
-      id: 1,
-      title: "IAM User",
-      subtitle: "Developer (john-dev)",
-      description: "User initiates request to access AWS resource",
-      details: ["Username / Password", "MFA (if enabled)", "Access Keys"],
-      color: "#f59e0b"
-    },
-    {
-      id: 2,
-      title: "Authentication",
-      subtitle: "Validate Credentials",
-      description: "IAM validates the user credentials",
-      details: ["✓ Username / Password", "✓ MFA if enabled", "✓ Check user exists"],
-      color: "#ef4444"
-    },
-    {
-      id: 3,
-      title: "Policy Evaluation",
-      subtitle: "Check Permissions",
-      description: "IAM evaluates policies: Identity-based, Resource-based, SCPs",
-      details: ["Identity Policy: Allow", "Resource Policy: Allow", "Permissions boundary: Not set", "SCPs (if applicable)"],
-      color: "#10b981"
-    },
-    {
-      id: 4,
-      title: "Role Assumption",
-      subtitle: "EC2-ReadS3-Role",
-      description: "User assumes IAM role and gets temporary credentials (STS)",
-      details: ["Temporary Credentials (STS)", "Session Token", "Expiration: 1-12 hours"],
-      color: "#3b82f6"
-    },
-    {
-      id: 5,
-      title: "AWS Service",
-      subtitle: "Amazon S3",
-      description: "AWS service processes the request and returns the response",
-      details: ["s3:GetObject", "company-prod-data/file.pdf", "Request successful"],
-      color: "#8b5cf6"
-    }
-  ];
+const HIW = [
+  'Users or applications are created in IAM.',
+  'They are added to groups or assigned roles.',
+  'Policies are attached to grant permissions.',
+  'Users authenticate using secure methods.',
+  'IAM evaluates the request and allows or denies.',
+  'All activity is logged and monitored.',
+  'Permissions are reviewed regularly.',
+]
+
+const BENEFITS = [
+  'Centralized access management',
+  'Fine-grained permissions',
+  'Secure with least privilege',
+  'Auditable and compliant',
+  'Supports MFA and federation',
+  'Scalable and flexible',
+]
+
+const CONCEPTS = [
+  { num:'1', name:'User',       desc:'An individual or application.'         },
+  { num:'2', name:'Group',      desc:'Collection of users for management.'   },
+  { num:'3', name:'Role',       desc:'Temporary permissions for users/services.' },
+  { num:'4', name:'Policy',     desc:'JSON document that defines permissions.' },
+  { num:'5', name:'Permission', desc:'Allow or deny access to AWS actions.'  },
+  { num:'6', name:'Resource',   desc:'AWS service or resource being accessed.' },
+]
+
+const IDENTITIES = [
+  { lbl:'Users',              active: (s) => [0,6].includes(s)       },
+  { lbl:'Groups',             active: (s) => [1,6].includes(s)       },
+  { lbl:'Roles',              active: (s) => [0,1,2,3,4,5,6].includes(s) },
+  { lbl:'Service Roles',      active: (s) => [0,1,2,3,4,5,6].includes(s) },
+]
+
+const AUTH_METHODS = [
+  { lbl:'Password'       },
+  { lbl:'MFA'            },
+  { lbl:'Access Keys'    },
+  { lbl:'Federation/SSO' },
+]
+
+const POLICIES = [
+  'Managed Policies',
+  'Inline Policies',
+  'Customer Managed',
+]
+
+const RESOURCES = [
+  'EC2','S3','RDS','Lambda','DynamoDB','...more'
+]
+
+export default function IAMArchitectureDiagram() {
+  const [step, setStep] = useState(0)
+  const [playing, setPlaying] = useState(true)
 
   useEffect(() => {
-    if (!isAnimating) return;
-    
-    const interval = setInterval(() => {
-      setCurrentStep((prev) => (prev + 1) % steps.length);
-    }, 3000);
+    if (!playing) return
+    const t = setInterval(() => setStep(s => (s + 1) % 7), 2500)
+    return () => clearInterval(t)
+  }, [playing])
 
-    return () => clearInterval(interval);
-  }, [isAnimating, steps.length]);
+  const g = (sec) => {
+    const map = {
+      id:  [0,1,2,3,4,5,6],
+      idu: [0,6], idg: [1,6],
+      au:  [3,4,5,6],
+      pol: [2,4,5,6],
+      ev:  [4,5,6],
+      res: [4,5,6],
+      ad:  [4,5,6],
+      mon: [5,6],
+    }
+    return (map[sec]||[]).includes(step)
+  }
 
-  const handleStepClick = (index) => {
-    setIsAnimating(false);
-    setCurrentStep(index);
-  };
+  const f = (arrow) => {
+    const map = {
+      'id-au':  [3,4,5,6],
+      'top-fl': [2,3,4,5,6],
+      'p-ev':   [4,5,6],
+      'ev-r':   [4,5,6],
+      'fl-mo':  [5,6],
+    }
+    return (map[arrow]||[]).includes(step)
+  }
 
-  const toggleAnimation = () => {
-    setIsAnimating(!isAnimating);
-  };
+  const cx = (...c) => c.filter(Boolean).join(' ')
 
   return (
-    <div className="iam-flow-container">
-      <div className="flow-header">
-        <h3 style={{ color: 'var(--accent)', marginBottom: '0.5rem' }}>
-          IAM REQUEST FLOW
-        </h3>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1rem' }}>
-          See how IAM authenticates, authorizes, and manages access to AWS resources
-        </p>
-        <button className="animation-toggle" onClick={toggleAnimation}>
-          {isAnimating ? '⏸ Pause' : '▶ Play'} Animation
+    <motion.div
+      className="nd-wrap iam-wrap"
+      initial={{ opacity:0, y:20 }}
+      animate={{ opacity:1, y:0 }}
+      transition={{ duration:0.5 }}
+    >
+      {/* TITLE */}
+      <div className="nd-titlebar">
+        <div className="nd-bar-line" />
+        <div className="nd-bar-center">
+          <span className="nd-bar-icon iam-bar-icon">IAM</span>
+          <h2 className="nd-bar-title">AWS IAM – ARCHITECTURE &amp; WORKFLOW</h2>
+        </div>
+        <div className="nd-bar-line" />
+      </div>
+      <div className="nd-subtitle">Secure access to your AWS resources</div>
+
+      {/* CONTROLS */}
+      <div className="nd-ctrl">
+        <button className="nd-playbtn" onClick={() => setPlaying(p => !p)}>
+          {playing ? 'II  Pause' : 'Play'}
         </button>
+        <span className="nd-stepinfo">Step {step+1}/7 — {STEPS[step].title}</span>
       </div>
 
-      {/* Custom Layout matching reference design */}
-      <div className="flow-diagram">
-        {/* Top Row - Steps 1, 2, 3 */}
-        <div className="diagram-row top-row">
-          {/* Step 1 */}
-          <div 
-            className={`diagram-step ${currentStep === 0 ? 'active' : ''}`}
-            onClick={() => handleStepClick(0)}
-            style={{ borderColor: steps[0].color }}
-          >
-            <div className="step-badge" style={{ background: steps[0].color }}>1</div>
-            <div className="step-icon">👤</div>
-            <div className="step-title">{steps[0].title}</div>
-            <div className="step-subtitle">{steps[0].subtitle}</div>
-          </div>
+      {/* 3-PANEL BODY */}
+      <div className="nd-body">
 
-          {/* Arrow 1->2 */}
-          <div className="diagram-arrow horizontal">
-            <div className={`arrow-line ${currentStep >= 1 ? 'active' : ''}`}>
-              {currentStep === 0 && isAnimating && (
-                <div className="arrow-dot" style={{ background: steps[0].color }}></div>
-              )}
+        {/* LEFT: Workflow */}
+        <div className="nd-left">
+          <div className="nd-panel-hdr">WORKFLOW</div>
+          <div className="nd-panel-sub">HOW IT WORKS</div>
+          {STEPS.map((s,i) => (
+            <div key={i}>
+              <motion.div
+                className={cx('nd-step', step===i && 'nd-on')}
+                onClick={() => { setStep(i); setPlaying(false) }}
+                animate={{ scale: step===i ? 1.02 : 1 }}
+                transition={{ duration:0.15 }}
+              >
+                <div className="nd-badge">{s.n}</div>
+                <div>
+                  <div className="nd-stitle">{s.title}</div>
+                  <div className="nd-sdesc">{s.desc}</div>
+                </div>
+              </motion.div>
+              {i < 6 && <div className="nd-step-sep">↓</div>}
             </div>
-            <span className="arrow-symbol">→</span>
-          </div>
-
-          {/* Step 2 */}
-          <div 
-            className={`diagram-step ${currentStep === 1 ? 'active' : ''}`}
-            onClick={() => handleStepClick(1)}
-            style={{ borderColor: steps[1].color }}
-          >
-            <div className="step-badge" style={{ background: steps[1].color }}>2</div>
-            <div className="step-icon">🔒</div>
-            <div className="step-title">{steps[1].title}</div>
-            <div className="step-subtitle">{steps[1].subtitle}</div>
-          </div>
-
-          {/* Arrow 2->3 */}
-          <div className="diagram-arrow horizontal">
-            <div className={`arrow-line ${currentStep >= 2 ? 'active' : ''}`}>
-              {currentStep === 1 && isAnimating && (
-                <div className="arrow-dot" style={{ background: steps[1].color }}></div>
-              )}
-            </div>
-            <span className="arrow-symbol">→</span>
-          </div>
-
-          {/* Step 3 */}
-          <div 
-            className={`diagram-step ${currentStep === 2 ? 'active' : ''}`}
-            onClick={() => handleStepClick(2)}
-            style={{ borderColor: steps[2].color }}
-          >
-            <div className="step-badge" style={{ background: steps[2].color }}>3</div>
-            <div className="step-icon">✅</div>
-            <div className="step-title">{steps[2].title}</div>
-            <div className="step-subtitle">{steps[2].subtitle}</div>
-          </div>
+          ))}
         </div>
 
-        {/* Bottom Row - Steps 5 and 4 */}
-        <div className="diagram-row bottom-row">
-          {/* Step 5 - AWS Service (Highlighted) */}
-          <div 
-            className={`diagram-step large-step ${currentStep === 4 ? 'active highlighted' : 'highlighted'}`}
-            onClick={() => handleStepClick(4)}
-            style={{ borderColor: steps[4].color }}
-          >
-            <div className="step-badge" style={{ background: steps[4].color }}>5</div>
-            <div className="step-icon">🪣</div>
-            <div className="step-title">{steps[4].title}</div>
-            <div className="step-subtitle">{steps[4].subtitle}</div>
-          </div>
+        {/* CENTER: Architecture */}
+        <div className="iam-center">
 
-          {/* Arrow 4<-5 */}
-          <div className="diagram-arrow horizontal">
-            <span className="arrow-symbol">←</span>
-            <div className={`arrow-line ${currentStep >= 4 ? 'active' : ''}`}>
-              {currentStep === 3 && isAnimating && (
-                <div className="arrow-dot reverse" style={{ background: steps[3].color }}></div>
-              )}
+          {/* Top row: IDENTITIES → AUTH */}
+          <div className="iam-toprow">
+            <div className={cx('ndbox bc iam-id', g('id') && 'gc')}>
+              <div className="ndbox-lbl cc">IDENTITIES</div>
+              <div className="iam-iconrow">
+                {IDENTITIES.map((it,i) => (
+                  <div key={i} className={cx('iam-iconcard', it.active(step) && 'iam-icon-on')}>
+                    <span className="iam-num-badge">{i+1}</span>
+                    <span className="iam-iclbl">{it.lbl}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Arrow */}
+            <div className="iam-dash-arr">
+              <div className={cx('nd-haline', f('id-au') && 'nd-fh')}>
+                <div className="ndpkt pkc" />
+              </div>
+              <span className="nd-hahead">→</span>
+            </div>
+
+            {/* AUTHENTICATION */}
+            <div className={cx('ndbox bp iam-auth', g('au') && 'gp')}>
+              <div className="ndbox-lbl cp">AUTHENTICATION</div>
+              <div className="iam-iconrow">
+                {AUTH_METHODS.map((it,i) => (
+                  <div key={i} className={cx('iam-iconcard', g('au') && 'iam-icon-on iam-icon-p')}>
+                    <span className="iam-num-badge iam-num-p">{i+1}</span>
+                    <span className="iam-iclbl">{it.lbl}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Step 4 */}
-          <div 
-            className={`diagram-step ${currentStep === 3 ? 'active' : ''}`}
-            onClick={() => handleStepClick(3)}
-            style={{ borderColor: steps[3].color }}
-          >
-            <div className="step-badge" style={{ background: steps[3].color }}>4</div>
-            <div className="step-icon">🎩</div>
-            <div className="step-title">{steps[3].title}</div>
-            <div className="step-subtitle">{steps[3].subtitle}</div>
+          {/* Down arrow */}
+          <div className="nd-varrow iam-va">
+            <div className={cx('nd-valine', f('top-fl') && 'nd-fv')}>
+              <div className="ndpkt pkp" />
+            </div>
+            <div className="nd-vahead">▼</div>
+          </div>
+
+          {/* IAM AUTHORIZATION FLOW */}
+          <div className={cx('ndbox bv iam-flowbox', (g('pol')||g('ev')||g('res')) && 'gv')}>
+            <div className="ndbox-lbl cv">IAM AUTHORIZATION FLOW</div>
+            <div className="iam-flowin">
+
+              {/* POLICIES + PERMS */}
+              <div className="iam-polcol">
+                <div className={cx('ndbox bb iam-subbox', g('pol') && 'gb')}>
+                  <div className="ndbox-lbl cb">POLICIES</div>
+                  {POLICIES.map((p,i) => (
+                    <div key={i} className="iam-prow">
+                      <span className="iam-pnum">{i+1}</span> {p}
+                    </div>
+                  ))}
+                </div>
+                <div className={cx('ndbox bv iam-perms', g('pol') && 'gv')}>
+                  <div className="ndbox-lbl cv" style={{fontSize:'0.48rem', lineHeight:1.3}}>
+                    PERMISSIONS BOUNDARIES &amp; SESSION POLICIES
+                  </div>
+                  <div className="iam-permdesc">Extra layer of control on permissions.</div>
+                </div>
+              </div>
+
+              {/* Arrow pol→eval */}
+              <div className="iam-inarr">
+                <div className={cx('nd-haline', f('p-ev') && 'nd-fh')}>
+                  <div className="ndpkt pkv" />
+                </div>
+                <span className="nd-hahead cv">→</span>
+              </div>
+
+              {/* POLICY EVALUATION */}
+              <div className={cx('ndbox bv iam-subbox iam-eval', g('ev') && 'gv')}>
+                <div className="ndbox-lbl cv">POLICY EVALUATION</div>
+                <div className="iam-funnel">
+                  <div className="iam-fitem" style={{color:'#ff4444', borderColor:'rgba(255,68,68,0.2)'}}>1. Explicit Deny</div>
+                  <div className="iam-fitem" style={{color:'#00ff88', borderColor:'rgba(0,255,136,0.2)'}}>2. Explicit Allow</div>
+                  <div className="iam-fitem" style={{color:'#475569', borderColor:'rgba(71,85,105,0.2)'}}>3. Implicit Deny</div>
+                </div>
+              </div>
+
+              {/* Arrow eval→res */}
+              <div className="iam-inarr">
+                <div className={cx('nd-haline', f('ev-r') && 'nd-fh')}>
+                  <div className="ndpkt pkg" />
+                </div>
+                <span className="nd-hahead cg">→</span>
+              </div>
+
+              {/* AWS RESOURCES */}
+              <div className={cx('ndbox bg iam-subbox iam-res', g('res') && 'gg')}>
+                <div className="ndbox-lbl cg">AWS RESOURCES</div>
+                {RESOURCES.map((r,i) => (
+                  <div key={i} className="iam-rrow">
+                    <span className="iam-rnum">{i+1}</span> {r}
+                  </div>
+                ))}
+              </div>
+
+              {/* ALLOW / DENY circles */}
+              <div className="iam-adcol">
+                <div className={cx('iam-reqbox', g('ad') && 'iam-reqglow')}>
+                  REQUEST<br/>ALLOW/DENY
+                </div>
+                <div className="iam-circle iam-allow">ALLOW</div>
+                <div className="iam-circle iam-deny">DENY</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Down arrow */}
+          <div className="nd-varrow iam-va">
+            <div className={cx('nd-valine', f('fl-mo') && 'nd-fv')}>
+              <div className="ndpkt pko" />
+            </div>
+            <div className="nd-vahead">▼</div>
+          </div>
+
+          {/* MONITORING */}
+          <div className={cx('ndbox bo iam-mon', g('mon') && 'go')}>
+            <div className="ndbox-lbl co">MONITORING &amp; AUDIT</div>
+            <div className="iam-monrow">
+              {[
+                { num:'1', nm:'CloudTrail',       ds:'Records API activity'            },
+                { num:'2', nm:'Access Analyzer',  ds:'Detects unused/external access'  },
+                { num:'3', nm:'AWS Config',       ds:'Tracks IAM resource changes'     },
+                { num:'4', nm:'CloudWatch',       ds:'Alarms and monitoring'           },
+              ].map((m,i) => (
+                <div key={i} className="iam-moncard">
+                  <span className="iam-monnum">{m.num}</span>
+                  <div className="iam-monnm">{m.nm}</div>
+                  <div className="iam-monde">{m.ds}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Vertical Arrow from 3 to 4 */}
-        <div className="diagram-arrow vertical right-side">
-          <div className={`arrow-line ${currentStep >= 3 ? 'active' : ''}`}>
-            {currentStep === 2 && isAnimating && (
-              <div className="arrow-dot-vertical" style={{ background: steps[2].color }}></div>
-            )}
-          </div>
-          <span className="arrow-symbol">↓</span>
-        </div>
-      </div>
-
-      <div className="flow-details">
-        <div className="detail-card" style={{ borderLeftColor: steps[currentStep].color }}>
-          <h4 style={{ color: steps[currentStep].color }}>{steps[currentStep].title}</h4>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-            {steps[currentStep].description}
-          </p>
-          <ul className="detail-list">
-            {steps[currentStep].details.map((detail, idx) => (
-              <li key={idx}>{detail}</li>
+        {/* RIGHT: How It Works + Benefits */}
+        <div className="nd-right">
+          <div className="nd-rbox">
+            <div className="nd-rhdr">HOW IT WORKS</div>
+            {HIW.map((text,i) => (
+              <div key={i} className={cx('nd-hiw', step===i && 'nd-hiwon')}>
+                <div className="nd-hnum">{i+1}</div>
+                <div className="nd-htext">{text}</div>
+              </div>
             ))}
-          </ul>
-        </div>
-
-        <div className="live-info">
-          <h5 style={{ color: 'var(--accent)', marginBottom: '1rem' }}>LIVE REQUEST INFO</h5>
-          <table className="info-table">
-            <tbody>
-              <tr>
-                <td><strong>User:</strong></td>
-                <td>john-dev</td>
-              </tr>
-              <tr>
-                <td><strong>Action:</strong></td>
-                <td>s3:GetObject</td>
-              </tr>
-              <tr>
-                <td><strong>Resource:</strong></td>
-                <td>arn:aws:s3:::company-prod-data/file.pdf</td>
-              </tr>
-              <tr>
-                <td><strong>Source IP:</strong></td>
-                <td>203.0.113.10</td>
-              </tr>
-              <tr>
-                <td><strong>Status:</strong></td>
-                <td><span className={currentStep === 4 ? 'status-success' : 'status-pending'}>
-                  {currentStep === 4 ? 'ALLOWED ✓' : 'PROCESSING...'}
-                </span></td>
-              </tr>
-            </tbody>
-          </table>
+          </div>
+          <div className="nd-rbox nd-benefitsbox">
+            <div className="nd-rhdr nd-gold">KEY BENEFITS</div>
+            {BENEFITS.map((b,i) => (
+              <div key={i} className="nd-ben">
+                <span className="nd-tick nd-tick-num">{i+1}</span>{b}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="common-integrations">
-        <h5 style={{ color: 'var(--accent)', marginBottom: '1rem', textAlign: 'center' }}>
-          COMMON INTEGRATIONS
-        </h5>
-        <div className="integration-grid">
-          {[
-            { icon: '💻', name: 'IAM + EC2' },
-            { icon: '⚡', name: 'IAM + Lambda' },
-            { icon: '🪣', name: 'IAM + S3' },
-            { icon: '🗄️', name: 'IAM + DynamoDB' },
-            { icon: '🐳', name: 'IAM + EKS' },
-            { icon: '📊', name: 'IAM + CloudTrail' }
-          ].map((integration, idx) => (
-            <div key={idx} className="integration-item">
-              <span className="integration-icon">{integration.icon}</span>
-              <span className="integration-name">{integration.name}</span>
+      {/* BOTTOM: KEY CONCEPTS */}
+      <div className="nd-bottom">
+        <div className="nd-btitle cp">KEY IAM CONCEPTS</div>
+        <div className="nd-bgrid" style={{ gridTemplateColumns:'repeat(6,1fr)' }}>
+          {CONCEPTS.map((c,i) => (
+            <div key={i} className="nd-bcard">
+              <span className="nd-bnum">{c.num}</span>
+              <div className="nd-bname">{c.name}</div>
+              <div className="nd-bdesc">{c.desc}</div>
             </div>
           ))}
         </div>
       </div>
-
-      <div className="quick-explanation">
-        <div className="explanation-step">
-          <div className="exp-number">1</div>
-          <div className="exp-text">The user provides credentials (password + MFA).</div>
-        </div>
-        <div className="explanation-step">
-          <div className="exp-number">2</div>
-          <div className="exp-text">IAM checks all applicable policies for the requested action.</div>
-        </div>
-        <div className="explanation-step">
-          <div className="exp-number">3</div>
-          <div className="exp-text">Since access is allowed, the user assumes a role on EC2.</div>
-        </div>
-        <div className="explanation-step">
-          <div className="exp-number">4</div>
-          <div className="exp-text">Temporary credentials are issued via STS.</div>
-        </div>
-        <div className="explanation-step">
-          <div className="exp-number">5</div>
-          <div className="exp-text">S3 returns the requested object.</div>
-        </div>
-        <div className="explanation-note">
-          ⚠️ <strong>Note:</strong> If any policy had an Explicit Deny, access would be blocked immediately.
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default IAMArchitectureDiagram;
+    </motion.div>
+  )
+}

@@ -1,349 +1,379 @@
-import React, { useState, useEffect } from 'react';
-import '../styles/EC2RequestFlow.css';
+import React, { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import '../NeonDiagram.css'
+import '../styles/EC2RequestFlow.css'
 
-const EC2RequestFlow = () => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(true);
+const STEPS = [
+  { n:1, title:'Launch an Instance',  desc:'Choose an AMI, instance type, key pair and launch.'         },
+  { n:2, title:'Configure Network',   desc:'Select a VPC, subnet, and security group.'                  },
+  { n:3, title:'Attach Storage',      desc:'Add EBS volumes for persistent storage.'                    },
+  { n:4, title:'Assign IAM Role',     desc:'Attach an IAM role to allow secure access to AWS services.' },
+  { n:5, title:'Connect to Instance', desc:'Connect using SSH (Linux) or RDP (Windows) securely.'      },
+  { n:6, title:'Monitor & Manage',    desc:'Monitor performance, create backups and scale.'             },
+  { n:7, title:'Terminate or Stop',   desc:'Stop or terminate the instance when not needed.'            },
+]
 
-  const steps = [
-    {
-      id: 1,
-      title: "User / Client",
-      subtitle: "Developer (john-dev)",
-      description: "User initiates request to launch or access an EC2 instance",
-      icon: "👤",
-      color: "#f59e0b"
-    },
-    {
-      id: 2,
-      title: "Authentication",
-      subtitle: "IAM Authentication",
-      description: "IAM validates credentials and authenticates",
-      details: ["✓ Validate credentials", "✓ Username/password", "✓ Access keys", "✓ MFA (if enabled)"],
-      icon: "🔒",
-      color: "#3b82f6"
-    },
-    {
-      id: 3,
-      title: "Authorization",
-      subtitle: "IAM Policy Evaluation",
-      description: "IAM evaluates policies and authorizes actions",
-      details: ["✓ Check permissions", "✓ ec2:RunInstances", "✓ ec2:DescribeInstances", "✓ Allow / Deny"],
-      icon: "✅",
-      color: "#10b981"
-    },
-    {
-      id: 4,
-      title: "EC2 Service",
-      subtitle: "Request accepted by EC2 service",
-      description: "EC2 service validates and processes the request",
-      details: ["✓ Validate request", "✓ Check quotas and limits", "✓ Resource availability"],
-      icon: "🖥️",
-      color: "#f97316"
-    },
-    {
-      id: 5,
-      title: "Launch Process",
-      subtitle: "Instance Creation",
-      description: "EC2 allocates resources and creates instance",
-      details: ["• Allocate resources", "• Create instance", "• Attach volume", "• Assign security group", "• Assign key pair", "• Attach IAM role"],
-      icon: "⚙️",
-      color: "#8b5cf6"
-    },
-    {
-      id: 6,
-      title: "Instance Running",
-      subtitle: "EC2 Instance Active",
-      description: "Instance is in running state and ready to use",
-      details: ["Instance is in 'running' state and ready to use"],
-      icon: "💻",
-      color: "#06b6d4"
-    },
-    {
-      id: 7,
-      title: "Access Instance",
-      subtitle: "Connect via SSH/RDP",
-      description: "User connects to the instance",
-      details: ["Access using key pair", "(SSH) or password", "(Windows)"],
-      icon: "🔑",
-      color: "#ec4899"
-    }
-  ];
+const HIW = [
+  'You launch an EC2 instance from an Amazon Machine Image (AMI).',
+  'The instance gets a private IP in your subnet and is protected by a Security Group.',
+  'Traffic from the Internet goes through the Internet Gateway and Load Balancer.',
+  'The instance can access other AWS services securely.',
+  'You can attach EBS volumes for persistent storage.',
+  'You monitor and manage the instance using CloudWatch and Systems Manager.',
+  'When not needed, you can stop or terminate the instance to save costs.',
+]
+
+const BENEFITS = [
+  'Fully scalable compute capacity',
+  'Secure and isolated environment',
+  'Flexible instance types',
+  'High availability across AZs',
+  'Pay only for what you use',
+  'Easy to manage and automate',
+]
+
+const COMPONENTS = [
+  { num:'1', name:'AMI',          desc:'Machine Image'    },
+  { num:'2', name:'Instance Type',desc:'vCPU, RAM, Net'   },
+  { num:'3', name:'Key Pair',     desc:'SSH Access'        },
+  { num:'4', name:'Elastic IP',   desc:'Static IP'         },
+  { num:'5', name:'User Data',    desc:'Script on Launch'  },
+  { num:'6', name:'IAM Role',     desc:'Access AWS services'},
+]
+
+const INTEGRATIONS = [
+  { num:'1', name:'IAM',         sub:'Access Control' },
+  { num:'2', name:'S3',          sub:'Storage'        },
+  { num:'3', name:'CloudWatch',  sub:'Monitoring'     },
+  { num:'4', name:'CloudTrail',  sub:'Auditing'       },
+  { num:'5', name:'Sys Manager', sub:'Management'     },
+  { num:'6', name:'KMS',         sub:'Encryption'     },
+]
+
+export default function EC2RequestFlow() {
+  const [step, setStep] = useState(0)
+  const [playing, setPlaying] = useState(true)
 
   useEffect(() => {
-    if (!isAnimating) return;
-    
-    const interval = setInterval(() => {
-      setCurrentStep((prev) => (prev + 1) % steps.length);
-    }, 3500);
+    if (!playing) return
+    const t = setInterval(() => setStep(s => (s + 1) % 7), 2500)
+    return () => clearInterval(t)
+  }, [playing])
 
-    return () => clearInterval(interval);
-  }, [isAnimating, steps.length]);
+  const g = (sec) => {
+    const map = {
+      inet:  [0,1,2,3,4,5,6],
+      igw:   [0,1,4,5,6],
+      vpc:   [0,1,2,3,4,5,6],
+      pub:   [0,1,4,5,6],
+      priv:  [0,2,3,4,5,6],
+      alb:   [0,1,4,5,6],
+      ec2:   [0,3,4,5,6],
+      data:  [2,5,6],
+      ebs:   [2,5,6],
+      rds:   [2,5,6],
+      sg:    [1,3,4,5,6],
+      asg:   [0,5,6],
+    }
+    return (map[sec]||[]).includes(step)
+  }
 
-  const handleStepClick = (index) => {
-    setIsAnimating(false);
-    setCurrentStep(index);
-  };
+  const f = (arrow) => {
+    const map = {
+      'inet-igw': [0,1,4,5,6],
+      'igw-pub':  [0,1,4,5,6],
+      'pub-priv': [0,1,4,5,6],
+      'priv-data':[2,5,6],
+      'az-az':    [0,4,5,6],
+    }
+    return (map[arrow]||[]).includes(step)
+  }
 
-  const toggleAnimation = () => {
-    setIsAnimating(!isAnimating);
-  };
+  const cx = (...c) => c.filter(Boolean).join(' ')
 
   return (
-    <div className="ec2-flow-container">
-      <div className="flow-header">
-        <h3 className="flow-title">EC2 REQUEST FLOW</h3>
-        <p className="flow-subtitle">
-          See how a request is processed to launch and access an EC2 instance
-        </p>
-        <button className="animation-toggle" onClick={toggleAnimation}>
-          {isAnimating ? '⏸ Pause' : '▶ Play'} Animation
+    <motion.div
+      className="nd-wrap ec2-wrap"
+      initial={{ opacity:0, y:20 }}
+      animate={{ opacity:1, y:0 }}
+      transition={{ duration:0.5 }}
+    >
+      {/* TITLE */}
+      <div className="nd-titlebar">
+        <div className="nd-bar-line" style={{background:'linear-gradient(90deg,transparent,#ff6b35,transparent)'}} />
+        <div className="nd-bar-center">
+          <span className="nd-bar-icon ec2-bar-icon">EC2</span>
+          <h2 className="nd-bar-title ec2-title">AWS EC2 – ARCHITECTURE &amp; WORKFLOW</h2>
+        </div>
+        <div className="nd-bar-line" style={{background:'linear-gradient(90deg,transparent,#ff6b35,transparent)'}} />
+      </div>
+      <div className="nd-subtitle">Scalable Virtual Servers in the AWS Cloud</div>
+
+      {/* CONTROLS */}
+      <div className="nd-ctrl">
+        <button className="nd-playbtn ec2-playbtn" onClick={() => setPlaying(p => !p)}>
+          {playing ? 'II  Pause' : 'Play'}
         </button>
+        <span className="nd-stepinfo">Step {step+1}/7 — {STEPS[step].title}</span>
       </div>
 
-      {/* Single Row Timeline matching reference design */}
-      <div className="ec2-diagram">
-        <div className="ec2-timeline-horizontal">
-          {steps.map((step, index) => (
-            <React.Fragment key={step.id}>
-              <div 
-                className={`ec2-diagram-step ${currentStep === index ? 'active' : ''}`}
-                onClick={() => handleStepClick(index)}
-                style={{ borderColor: step.color }}
+      {/* 3-PANEL BODY */}
+      <div className="nd-body">
+
+        {/* LEFT */}
+        <div className="nd-left">
+          <div className="nd-panel-hdr" style={{color:'#ff6b35'}}>WORKFLOW</div>
+          <div className="nd-panel-sub">HOW IT WORKS</div>
+          {STEPS.map((s,i) => (
+            <div key={i}>
+              <motion.div
+                className={cx('nd-step', step===i && 'nd-on')}
+                style={step===i ? {background:'rgba(255,107,53,0.07)', borderColor:'rgba(255,107,53,0.3)'} : {}}
+                onClick={() => { setStep(i); setPlaying(false) }}
+                animate={{ scale: step===i ? 1.02 : 1 }}
+                transition={{ duration:0.15 }}
               >
-                <div className="ec2-step-badge" style={{ background: step.color }}>
-                  {step.id}
+                <div className="nd-badge" style={{
+                  borderColor:'#ff6b35',
+                  background: step===i ? '#ff6b35' : 'rgba(255,107,53,0.1)',
+                  color: step===i ? '#050510' : '#ff6b35',
+                  boxShadow: step===i ? '0 0 8px #ff6b35' : 'none'
+                }}>{s.n}</div>
+                <div>
+                  <div className="nd-stitle" style={step===i ? {color:'#ff6b35'} : {}}>{s.title}</div>
+                  <div className="nd-sdesc">{s.desc}</div>
                 </div>
-                <div className="ec2-step-icon">{step.icon}</div>
-                <div className="ec2-step-title">{step.title}</div>
-                <div className="ec2-step-subtitle">{step.subtitle}</div>
-                {step.details && (
-                  <div className="ec2-step-details">
-                    {step.details.map((detail, idx) => (
-                      <div key={idx} className="detail-item">{detail}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {index < steps.length - 1 && (
-                <div className="ec2-diagram-arrow">
-                  <div className={`ec2-arrow-line ${currentStep > index ? 'active' : ''}`}>
-                    {currentStep === index && isAnimating && (
-                      <div className="ec2-moving-dot" style={{ background: step.color }}></div>
-                    )}
-                  </div>
-                  <span className="ec2-arrow-symbol" style={{ 
-                    color: currentStep > index ? step.color : 'rgba(100, 116, 139, 0.6)' 
-                  }}>
-                    →
-                  </span>
-                </div>
-              )}
-            </React.Fragment>
+              </motion.div>
+              {i < 6 && <div className="nd-step-sep">↓</div>}
+            </div>
           ))}
         </div>
 
-        {/* Access Denied Box (shown when authorization fails) */}
-        {currentStep === 2 && (
-          <div className="ec2-access-denied">
-            <div className="denied-icon">✕</div>
-            <div className="denied-title">Access Denied</div>
-            <div className="denied-text">
-              If not authorized, the request is blocked and no instance is launched.
+        {/* CENTER */}
+        <div className="ec2-center">
+
+          {/* Internet + IGW */}
+          <div className="ec2-inet-row">
+            <div className={cx('ec2-inet', g('inet') && 'ec2-inet-glow')}>
+              Internet
+              <div className="ec2-inet-arrows">↑↓</div>
+            </div>
+            <div className="ec2-igw-wrap">
+              <div className={cx('ec2-igw', g('igw') && 'ec2-igw-glow')}>
+                <span className="ec2-svc-badge" style={{background:'#00d4ff',color:'#050510'}}>IGW</span>
+                <span style={{fontSize:'0.5rem', color:'#94a3b8'}}>Internet Gateway</span>
+              </div>
+              <div className="ec2-igw-arrows">
+                <div className={cx('nd-valine ec2-igwline', f('igw-pub') && 'nd-fv')}>
+                  <div className="ndpkt pkc" />
+                </div>
+                <div className="nd-vahead" style={{color:'rgba(0,212,255,0.4)'}}>▼</div>
+              </div>
             </div>
           </div>
-        )}
-      </div>
 
-      {/* Details Section */}
-      <div className="ec2-details-grid">
-        {/* Current Step Details */}
-        <div className="ec2-detail-card" style={{ borderLeftColor: steps[currentStep].color }}>
-          <h4 style={{ color: steps[currentStep].color }}>{steps[currentStep].title}</h4>
-          <p className="detail-description">{steps[currentStep].description}</p>
-          {steps[currentStep].details && (
-            <ul className="ec2-detail-list">
-              {steps[currentStep].details.map((detail, idx) => (
-                <li key={idx}>{detail}</li>
+          {/* AWS Cloud */}
+          <div className="ndbox bp ec2-cloud">
+            <div className="ec2-cloud-label">AWS CLOUD</div>
+            <div className="ec2-vpc-lbl">
+              VPC <span style={{color:'#64748b'}}>10.0.0.0/16</span>
+              <span className="ec2-az-badge">AZ-A</span>
+              <span className="ec2-az-badge" style={{color:'#00d4ff', borderColor:'rgba(0,212,255,0.3)'}}>AZ-B</span>
+            </div>
+
+            <div className="ec2-az-grid">
+
+              {/* AZ A */}
+              <div className="ec2-az">
+                <div className={cx('ec2-subnet ec2-pub', g('pub') && 'ec2-pub-glow')}>
+                  <div className="ec2-subnet-lbl">Public Subnet A <span>10.0.1.0/24</span></div>
+                  <div className={cx('ec2-alb', g('alb') && 'ec2-alb-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#00ff88',color:'#050510'}}>ALB</span>
+                    <span>Load Balancer</span>
+                  </div>
+                </div>
+                <div className="ec2-va-wrap">
+                  <div className={cx('nd-valine', f('pub-priv') && 'nd-fv')} style={{height:'12px'}}>
+                    <div className="ndpkt pkg" />
+                  </div>
+                  <div className="nd-vahead">▼</div>
+                </div>
+                <div className={cx('ec2-subnet ec2-priv', g('priv') && 'ec2-priv-glow')}>
+                  <div className="ec2-subnet-lbl">Private Subnet A <span>10.0.3.0/24</span></div>
+                  <div className={cx('ec2-inst', g('ec2') && 'ec2-inst-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#ff6b35',color:'#050510'}}>EC2</span>
+                    <div>
+                      <div style={{fontSize:'0.5rem', fontWeight:700}}>EC2 Instance</div>
+                      <div style={{fontSize:'0.44rem', color:'#64748b'}}>Web Server</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="ec2-va-wrap">
+                  <div className={cx('nd-valine', f('priv-data') && 'nd-fv')} style={{height:'12px'}}>
+                    <div className="ndpkt pko" />
+                  </div>
+                  <div className="nd-vahead">▼</div>
+                </div>
+                <div className={cx('ec2-subnet ec2-data', g('data') && 'ec2-data-glow')}>
+                  <div className="ec2-subnet-lbl">Data Subnet A <span>10.0.5.0/24</span></div>
+                  <div className={cx('ec2-ebs', g('ebs') && 'ec2-ebs-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#3b82f6',color:'#050510'}}>EBS</span>
+                    Volume
+                  </div>
+                </div>
+              </div>
+
+              {/* Center: ASG + RDS */}
+              <div className="ec2-center-col">
+                <div style={{height:'58px'}} />
+                <div className="ec2-va-wrap"><div className="nd-valine" style={{height:'12px'}}/><div className="nd-vahead">▼</div></div>
+                <div className={cx('ec2-asg', g('asg') && 'ec2-asg-glow')}>
+                  <div style={{fontSize:'0.46rem', fontWeight:900, color:'#ff8c00'}}>AUTO</div>
+                  <div style={{fontSize:'0.42rem', color:'#64748b'}}>SCALING</div>
+                  <div className="ec2-asg-arrows">
+                    <div className={cx('nd-haline', f('az-az') && 'nd-fh')} style={{width:'22px'}}>
+                      <div className="ndpkt pko" />
+                    </div>
+                    <span style={{fontSize:'0.5rem', color:'rgba(255,140,0,0.4)'}}>↔</span>
+                    <div className={cx('nd-haline', f('az-az') && 'nd-fh')} style={{width:'22px'}}>
+                      <div className="ndpkt pko" />
+                    </div>
+                  </div>
+                </div>
+                <div className="ec2-va-wrap"><div className="nd-valine" style={{height:'12px'}}/><div className="nd-vahead">▼</div></div>
+                <div className={cx('ec2-rds', g('rds') && 'ec2-rds-glow')}>
+                  <span className="ec2-svc-badge" style={{background:'#3b82f6',color:'#050510'}}>RDS</span>
+                  <div style={{fontSize:'0.46rem', color:'#3b82f6', fontWeight:700}}>Amazon RDS</div>
+                </div>
+              </div>
+
+              {/* AZ B */}
+              <div className="ec2-az">
+                <div className={cx('ec2-subnet ec2-pub', g('pub') && 'ec2-pub-glow')}>
+                  <div className="ec2-subnet-lbl">Public Subnet B <span>10.0.2.0/24</span></div>
+                  <div className={cx('ec2-alb', g('alb') && 'ec2-alb-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#00ff88',color:'#050510'}}>ALB</span>
+                    <span>Load Balancer</span>
+                  </div>
+                </div>
+                <div className="ec2-va-wrap">
+                  <div className={cx('nd-valine', f('pub-priv') && 'nd-fv')} style={{height:'12px'}}>
+                    <div className="ndpkt pkg" />
+                  </div>
+                  <div className="nd-vahead">▼</div>
+                </div>
+                <div className={cx('ec2-subnet ec2-priv', g('priv') && 'ec2-priv-glow')}>
+                  <div className="ec2-subnet-lbl">Private Subnet B <span>10.0.4.0/24</span></div>
+                  <div className={cx('ec2-inst', g('ec2') && 'ec2-inst-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#ff6b35',color:'#050510'}}>EC2</span>
+                    <div>
+                      <div style={{fontSize:'0.5rem', fontWeight:700}}>EC2 Instance</div>
+                      <div style={{fontSize:'0.44rem', color:'#64748b'}}>Web Server</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="ec2-va-wrap">
+                  <div className={cx('nd-valine', f('priv-data') && 'nd-fv')} style={{height:'12px'}}>
+                    <div className="ndpkt pko" />
+                  </div>
+                  <div className="nd-vahead">▼</div>
+                </div>
+                <div className={cx('ec2-subnet ec2-data', g('data') && 'ec2-data-glow')}>
+                  <div className="ec2-subnet-lbl">Data Subnet B <span>10.0.6.0/24</span></div>
+                  <div className={cx('ec2-ebs', g('ebs') && 'ec2-ebs-glow')}>
+                    <span className="ec2-svc-badge" style={{background:'#3b82f6',color:'#050510'}}>EBS</span>
+                    Volume
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Security Group */}
+          <div className={cx('ec2-sg', g('sg') && 'ec2-sg-glow')}>
+            <div className="ec2-sg-title">Security Group</div>
+            <div className="ec2-sg-section">Inbound Rules</div>
+            {[['SSH','22','My IP'],['HTTP','80','0.0.0.0/0'],['HTTPS','443','0.0.0.0/0']]
+              .map(([t,p,s],i) => (
+                <div key={i} className="ec2-sg-row">
+                  <span className="ec2-sg-num">{i+1}</span>
+                  <span>{t}</span><span>{p}</span><span>{s}</span>
+                </div>
               ))}
-            </ul>
-          )}
+            <div className="ec2-sg-section">Outbound Rules</div>
+            <div className="ec2-sg-row">
+              <span className="ec2-sg-num">1</span>
+              <span>All Traffic</span><span>All</span><span>0.0.0.0/0</span>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="ec2-legend">
+            {[
+              { c:'#00d4ff', label:'Internet' },
+              { c:'#00ff88', label:'Public'   },
+              { c:'#ff6b35', label:'Private'  },
+              { c:'#3b82f6', label:'Storage'  },
+            ].map((l,i) => (
+              <div key={i} className="ec2-legend-item">
+                <div className="ec2-legend-line" style={{background:l.c}} />
+                <span>{l.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Instance Details */}
-        <div className="ec2-instance-details">
-          <h5>INSTANCE DETAILS</h5>
-          <table className="ec2-info-table">
-            <tbody>
-              <tr>
-                <td><strong>Instance ID</strong></td>
-                <td className="text-accent">i-0abc234d4567890</td>
-              </tr>
-              <tr>
-                <td><strong>Instance Type</strong></td>
-                <td>t3.micro</td>
-              </tr>
-              <tr>
-                <td><strong>AMI</strong></td>
-                <td>ami-0c55b159cbfafe1f0</td>
-              </tr>
-              <tr>
-                <td><strong>Region</strong></td>
-                <td>us-east-1</td>
-              </tr>
-              <tr>
-                <td><strong>VPC</strong></td>
-                <td>vpc-0a1b2c3d4e5f67h8</td>
-              </tr>
-              <tr>
-                <td><strong>Subnet</strong></td>
-                <td>subnet-0a1b2c3d4e5f67h8</td>
-              </tr>
-              <tr>
-                <td><strong>Public IP</strong></td>
-                <td className="text-accent">10.0.1.25</td>
-              </tr>
-              <tr>
-                <td><strong>Private IP</strong></td>
-                <td>54.201.45.67</td>
-              </tr>
-              <tr>
-                <td><strong>Status</strong></td>
-                <td>
-                  <span className={currentStep >= 5 ? 'status-success' : 'status-pending'}>
-                    {currentStep >= 5 ? '● running' : '○ pending'}
-                  </span>
-                </td>
-              </tr>
-              <tr>
-                <td><strong>Security Group</strong></td>
-                <td>sg-0a1b2c3d4e5f67h8</td>
-              </tr>
-              <tr>
-                <td><strong>IAM Role</strong></td>
-                <td>EC2-SSM-Role</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Security Group Details */}
-      <div className="ec2-security-group">
-        <h5>SECURITY GROUP (sg-0a1b2c3d)</h5>
-        <div className="sg-tables">
-          <div className="sg-table-container">
-            <h6>Inbound Rules</h6>
-            <table className="sg-table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Protocol</th>
-                  <th>Port</th>
-                  <th>Source</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>SSH</td>
-                  <td>TCP</td>
-                  <td>22</td>
-                  <td>203.0.113.0/24</td>
-                </tr>
-                <tr>
-                  <td>HTTP</td>
-                  <td>TCP</td>
-                  <td>80</td>
-                  <td>0.0.0.0/0</td>
-                </tr>
-                <tr>
-                  <td>HTTPS</td>
-                  <td>TCP</td>
-                  <td>443</td>
-                  <td>0.0.0.0/0</td>
-                </tr>
-                <tr>
-                  <td>Custom</td>
-                  <td>TCP</td>
-                  <td>8080</td>
-                  <td>10.0.0.0/16</td>
-                </tr>
-              </tbody>
-            </table>
+        {/* RIGHT */}
+        <div className="nd-right">
+          <div className="nd-rbox" style={{borderColor:'rgba(255,107,53,0.2)', background:'rgba(255,107,53,0.02)'}}>
+            <div className="nd-rhdr" style={{color:'#ff6b35'}}>HOW IT WORKS</div>
+            {HIW.map((text,i) => (
+              <div key={i} className={cx('nd-hiw', step===i && 'nd-hiwon')}
+                style={step===i ? {background:'rgba(255,107,53,0.04)', borderColor:'rgba(255,107,53,0.25)'} : {}}>
+                <div className="nd-hnum" style={step===i ? {background:'#ff6b35', color:'#050510', boxShadow:'0 0 6px #ff6b35'} : {borderColor:'rgba(255,107,53,0.3)', color:'#ff6b35', background:'rgba(255,107,53,0.1)'}}>{i+1}</div>
+                <div className="nd-htext">{text}</div>
+              </div>
+            ))}
+          </div>
+          <div className="nd-rbox nd-benefitsbox">
+            <div className="nd-rhdr nd-gold">KEY BENEFITS</div>
+            {BENEFITS.map((b,i) => (
+              <div key={i} className="nd-ben">
+                <span className="nd-tick nd-tick-num">{i+1}</span>{b}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Common Integrations */}
-      <div className="ec2-integrations">
-        <h5>COMMON INTEGRATIONS</h5>
-        <div className="integration-grid">
-          {[
-            { icon: '🔐', name: 'IAM\n(Access Control)', color: '#f59e0b' },
-            { icon: '🌐', name: 'VPC\n(Network)', color: '#3b82f6' },
-            { icon: '💾', name: 'EBS\n(Storage)', color: '#10b981' },
-            { icon: '🛡️', name: 'Security Group\n(Firewall)', color: '#ef4444' },
-            { icon: '📊', name: 'CloudWatch\n(Monitoring)', color: '#f97316' },
-            { icon: '💼', name: 'Systems Manager\n(Management)', color: '#8b5cf6' }
-          ].map((integration, idx) => (
-            <div key={idx} className="integration-box" style={{ borderColor: integration.color }}>
-              <span className="integration-icon">{integration.icon}</span>
-              <span className="integration-name">{integration.name}</span>
+      {/* BOTTOM: Components */}
+      <div className="nd-bottom">
+        <div className="nd-btitle" style={{color:'#ff6b35'}}>EC2 INSTANCE COMPONENTS</div>
+        <div className="nd-bgrid" style={{gridTemplateColumns:'repeat(6,1fr)'}}>
+          {COMPONENTS.map((c,i) => (
+            <div key={i} className="nd-bcard">
+              <span className="nd-bnum ec2-bnum">{c.num}</span>
+              <div className="nd-bname">{c.name}</div>
+              <div className="nd-bdesc">{c.desc}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Instance States */}
-      <div className="ec2-states">
-        <h5>INSTANCE STATES</h5>
-        <div className="states-flow">
-          {[
-            { name: 'pending', icon: '▶', color: '#3b82f6' },
-            { name: 'running', icon: '▶', color: '#10b981' },
-            { name: 'stopping', icon: '●', color: '#f59e0b' },
-            { name: 'stopped', icon: '●', color: '#f59e0b' },
-            { name: 'shutting-down', icon: '●', color: '#ef4444' },
-            { name: 'terminated', icon: '●', color: '#ef4444' }
-          ].map((state, idx) => (
-            <React.Fragment key={idx}>
-              <div className="state-box" style={{ borderColor: state.color }}>
-                <span className="state-icon" style={{ color: state.color }}>{state.icon}</span>
-                <span className="state-name">{state.name}</span>
-              </div>
-              {idx < 5 && <span className="state-arrow">→</span>}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Explanation */}
-      <div className="ec2-explanation">
-        <h5>QUICK EXPLANATION</h5>
-        <div className="explanation-steps">
-          {[
-            "User sends request to launch an EC2 instance.",
-            "IAM authenticates the user's credentials and checks permissions.",
-            "IAM policies are evaluated for ec2:RunInstances action.",
-            "EC2 service validates the request.",
-            "Resources are allocated and instance is created.",
-            "Instance enters 'running' state.",
-            "User connects to the instance using SSH or password."
-          ].map((text, idx) => (
-            <div key={idx} className="explanation-item">
-              <div className="exp-number">{idx + 1}</div>
-              <div className="exp-text">{text}</div>
+      {/* BOTTOM: Integrations */}
+      <div style={{marginTop:'0.5rem', paddingTop:'0.5rem', borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+        <div className="nd-btitle" style={{color:'#3b82f6'}}>INTEGRATION WITH AWS SERVICES</div>
+        <div className="nd-bgrid" style={{gridTemplateColumns:'repeat(6,1fr)'}}>
+          {INTEGRATIONS.map((c,i) => (
+            <div key={i} className="nd-bcard">
+              <span className="nd-bnum ec2-bnum-blue">{c.num}</span>
+              <div className="nd-bname">{c.name}</div>
+              <div className="nd-bdesc">{c.sub}</div>
             </div>
           ))}
         </div>
-        <div className="explanation-warning">
-          ⚠️ <strong>Note:</strong> If any step fails (authentication, authorization, or resource limits), 
-          the instance will not be launched.
-        </div>
       </div>
-    </div>
-  );
-};
-
-export default EC2RequestFlow;
+    </motion.div>
+  )
+}
