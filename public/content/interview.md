@@ -1,0 +1,417 @@
+# 100 Terraform Interview Questions
+
+---
+
+## 🟢 Beginner Level (1–25)
+
+**1. What is Terraform?**
+Terraform is an open-source Infrastructure as Code (IaC) tool by HashiCorp that allows you to define, provision, and manage infrastructure using declarative configuration files.
+> **Explanation:** Instead of manually clicking through cloud consoles (like AWS or Azure), you write code to describe your desired infrastructure. Terraform then automates the creation, updating, and deletion of those resources.
+
+**2. What language does Terraform use?**
+Terraform uses HCL (HashiCorp Configuration Language), a declarative language designed to be human-readable and machine-friendly.
+> **Explanation:** HCL is specific to HashiCorp products. It is JSON-compatible but much easier for humans to read and write, using simple block structures, key-value pairs, and built-in functions.
+
+**3. What are the key features of Terraform?**
+Infrastructure as Code, execution plans, resource graph, change automation, provider ecosystem, state management, and modularity.
+> **Explanation:** These features collectively ensure that infrastructure is reproducible, changes are predictable (via execution plans), and dependencies are mapped out automatically (via the resource graph).
+
+**4. What is a Terraform provider?**
+A provider is a plugin that enables Terraform to interact with APIs of cloud platforms and services (e.g., AWS, Azure, GCP, Kubernetes).
+> **Explanation:** Terraform itself doesn't know how to create an EC2 instance. The AWS provider contains the logic to translate your HCL code into AWS API calls.
+
+**5. What is a Terraform resource?**
+A resource is the most important element in Terraform — it describes an infrastructure object such as an EC2 instance, S3 bucket, or DNS record.
+> **Explanation:** Resources are the fundamental building blocks of your infrastructure. Every resource block tells Terraform to manage a specific component in the real world.
+
+**6. What is the difference between `terraform plan` and `terraform apply`?**
+`terraform plan` shows what changes will be made without applying them. `terraform apply` executes the planned changes to the actual infrastructure.
+> **Explanation:** Think of `plan` as a dry-run or preview. It acts as a safety mechanism so you know exactly what will be created, modified, or destroyed before `apply` actually makes the API calls.
+
+**7. What is `terraform init` used for?**
+It initializes a working directory, downloads provider plugins, and sets up the backend for state storage.
+> **Explanation:** This is always the first command you run. It sets up the hidden `.terraform` directory so Terraform has the necessary binaries to execute your code.
+
+**8. What is Terraform state?**
+Terraform state is a snapshot of your managed infrastructure stored in a file (`terraform.tfstate`) that maps real-world resources to your configuration.
+> **Explanation:** Without state, Terraform wouldn't know if a resource defined in your code already exists in the cloud. The state file acts as the source of truth for what Terraform currently manages.
+
+**9. Why is Terraform state important?**
+It tracks the current state of infrastructure, enables Terraform to detect drift, plan changes, and manage resource dependencies.
+> **Explanation:** It maps the abstract resources in your code to real IDs (like `i-1234567890abcdef0`). This mapping is crucial for updating and destroying the correct resources.
+
+**10. What is a `terraform.tfvars` file?**
+A file used to set values for input variables, keeping variable definitions separate from actual values.
+> **Explanation:** This allows you to use the same configuration for different environments (like Dev and Prod) simply by swapping out the `.tfvars` file containing environment-specific values.
+
+**11. What are input variables in Terraform?**
+Variables declared with the `variable` block that allow you to parameterize configurations for reuse across environments.
+> **Explanation:** They act like function arguments in programming, allowing users to input data into the Terraform module without altering the source code.
+
+**12. What are output values in Terraform?**
+Outputs expose specific values from your configuration after `terraform apply`, useful for passing data between modules or displaying results.
+> **Explanation:** Similar to return values in functions, outputs let you easily retrieve things like generated IP addresses, DNS names, or resource IDs to be used elsewhere.
+
+**13. What is the `terraform destroy` command?**
+It removes all resources managed by the current Terraform configuration, essentially tearing down the infrastructure.
+> **Explanation:** It reads the state file to find everything it previously created and issues API calls to delete them in the correct reverse dependency order.
+
+**14. What is the default state file name in Terraform?**
+`terraform.tfstate`
+> **Explanation:** This is the local file generated by default. In production, this file is usually stored remotely (e.g., in an S3 bucket) rather than locally.
+
+**15. What are data sources in Terraform?**
+Data sources allow Terraform to fetch information from existing infrastructure or external sources without managing them (read-only).
+> **Explanation:** If you have a VPC that was created manually or by another team, a data source allows you to query its ID so you can place new resources inside it.
+
+**16. What is the difference between a resource and a data source?**
+A resource creates and manages infrastructure. A data source only reads existing infrastructure without modifying it.
+> **Explanation:** Resources define the *desired* state of new objects, whereas data sources act as read-only queries against *current* existing objects.
+
+**17. What is a `locals` block in Terraform?**
+Locals define named expressions that can be reused within a module to avoid repetition and simplify complex expressions.
+> **Explanation:** Unlike input variables, locals cannot be overridden by the user. They are strictly for internal calculation and keeping your code DRY (Don't Repeat Yourself).
+
+**18. How do you comment in HCL?**
+Using `#` for single-line comments, `//` for single-line, or `/* ... */` for multi-line comments.
+> **Explanation:** `#` is the most canonical and commonly used comment style in Terraform configurations.
+
+**19. What is the `terraform validate` command?**
+It checks whether the configuration files are syntactically valid and internally consistent without accessing remote APIs.
+> **Explanation:** It acts as a linter, ensuring you haven't made typos, used undeclared variables, or made syntax errors, speeding up development before running a full plan.
+
+**20. What is `terraform fmt`?**
+A command that automatically formats Terraform configuration files to follow the canonical style conventions.
+> **Explanation:** It aligns equal signs, indents properly, and ensures consistent spacing across your team's codebase, making pull requests easier to review.
+
+**21. What is a `null_resource` in Terraform?**
+A resource that doesn't create any real infrastructure but is used to run provisioners or create dependencies between resources.
+> **Explanation:** It's often used as a hack to run local shell scripts (`local-exec`) at a specific point during the Terraform apply process.
+
+**22. What is the `depends_on` meta-argument?**
+It explicitly declares a dependency between resources when Terraform cannot automatically infer it from the configuration.
+> **Explanation:** Terraform usually figures out dependencies automatically (e.g., passing a VPC ID to a subnet). Use `depends_on` only when a resource relies on another behind the scenes, like an application needing a database to be fully initialized first.
+
+**23. What is the `count` meta-argument?**
+It allows you to create multiple instances of a resource by specifying an integer count.
+> **Explanation:** Setting `count = 3` on an EC2 instance resource creates three identical instances, indexed 0, 1, and 2.
+
+**24. What is the `for_each` meta-argument?**
+It creates multiple instances of a resource from a map or set, giving each instance a unique key.
+> **Explanation:** This is safer than `count` when items might be removed from the middle of a list, because the resources are tracked by a string key instead of an integer index.
+
+**25. What is the difference between `count` and `for_each`?**
+`count` uses an index (0, 1, 2...) and is order-sensitive. `for_each` uses named keys, making it more stable when items are added or removed.
+> **Explanation:** If you have `count = 3` and remove the second item, Terraform destroys the third and recreates the second. With `for_each`, it simply destroys the specific item identified by its key.
+
+---
+
+## 🟡 Intermediate Level (26–60)
+
+**26. What is a Terraform module?**
+A module is a container for multiple resources that are used together. The root module is your main configuration; child modules are reusable packages.
+> **Explanation:** Modules are the Terraform equivalent of functions or classes in programming. They package complex infrastructure into a simple, reusable block with inputs and outputs.
+
+**27. How do you call a child module in Terraform?**
+Using a `module` block with a `source` argument pointing to a local path, Git URL, or Terraform Registry.
+> **Explanation:** The `source` tells Terraform where to download the module code from during the `terraform init` phase.
+
+**28. What is the Terraform Registry?**
+A public repository (registry.terraform.io) where providers and modules are published and shared by HashiCorp and the community.
+> **Explanation:** It acts like NPM for Node.js or PyPI for Python, allowing you to easily find and use pre-built, verified configurations for common infrastructure patterns.
+
+**29. What is remote state in Terraform?**
+Storing the `terraform.tfstate` file in a remote backend (e.g., S3, GCS, Azure Blob, Terraform Cloud) instead of locally.
+> **Explanation:** By pushing the state file to a centralized, remote location, an entire team can work on the same infrastructure without overwriting each other's local state files.
+
+**30. What are the benefits of remote state?**
+Team collaboration, state locking to prevent concurrent modifications, security, and centralized state management.
+> **Explanation:** It guarantees everyone is working from the single source of truth and allows encryption at rest for sensitive data stored in the state.
+
+**31. What is state locking in Terraform?**
+A mechanism that prevents multiple users from running `terraform apply` simultaneously and corrupting the state file. DynamoDB is commonly used with S3 backends.
+> **Explanation:** If Developer A is applying changes, Developer B will receive an error that the state is locked until Developer A finishes, preventing race conditions.
+
+**32. What is `terraform refresh`?**
+It updates the Terraform state file to match the real-world infrastructure without making any changes to the infrastructure itself.
+> **Explanation:** If someone manually deleted an EC2 instance in the AWS console, running `refresh` will update the state file to reflect that the instance no longer exists. (Note: this happens automatically during `plan` now).
+
+**33. What is `terraform taint`?**
+It marks a resource for destruction and recreation on the next `terraform apply`. (Deprecated in newer versions; replaced by `-replace` flag.)
+> **Explanation:** If a resource is corrupted (e.g., a failed bootstrap script), tainting it tells Terraform to treat it as broken and recreate it from scratch.
+
+**34. What is the `-replace` flag in Terraform?**
+Used with `terraform apply -replace=<resource>` to force recreation of a specific resource.
+> **Explanation:** This is the modern, safer alternative to `terraform taint`, allowing you to replace resources without altering the state file prior to the apply step.
+
+**35. What is `terraform import`?**
+It imports existing infrastructure into the Terraform state so it can be managed by Terraform going forward.
+> **Explanation:** If you manually created an S3 bucket and now want Terraform to manage it, `import` links the real bucket to a resource block in your code without deleting it.
+
+**36. What is the `lifecycle` block in Terraform?**
+It allows customization of resource behavior with arguments like `create_before_destroy`, `prevent_destroy`, and `ignore_changes`.
+> **Explanation:** It overrides default Terraform behaviors to protect critical resources or modify how updates are applied.
+
+**37. What does `create_before_destroy` do?**
+It ensures that a new resource is created before the old one is destroyed, useful for zero-downtime replacements.
+> **Explanation:** By default, Terraform destroys the old resource, then creates the new one. This flag flips that order to ensure continuity of service.
+
+**38. What does `prevent_destroy` do?**
+It prevents a resource from being accidentally destroyed by throwing an error if Terraform tries to destroy it.
+> **Explanation:** Essential for critical components like production databases. You must manually remove this flag from the code before Terraform will allow the destruction.
+
+**39. What does `ignore_changes` do?**
+It tells Terraform to ignore changes to specific resource attributes and not update them on subsequent applies.
+> **Explanation:** Useful if another system (like an autoscaler) modifies an attribute (like instance count). This stops Terraform from reverting the change back to what's in the code.
+
+**40. How does Terraform handle dependencies between resources?**
+Terraform builds a dependency graph using implicit references (e.g., `aws_instance.id`) and explicit `depends_on` declarations.
+> **Explanation:** This mathematical graph determines the exact order of operations. It ensures a subnet isn't created before the VPC it belongs to.
+
+**41. What is the `terraform graph` command?**
+It outputs a visual representation of the dependency graph in DOT format, which can be rendered with Graphviz.
+> **Explanation:** This is an advanced debugging tool used to visually inspect how Terraform maps out the relationships between your resources.
+
+**42. What are provisioners in Terraform?**
+Provisioners (e.g., `remote-exec`, `local-exec`, `file`) run scripts or commands on resources after creation, used as a last resort.
+> **Explanation:** They allow you to bootstrap a server (like installing software via SSH) immediately after it boots up.
+
+**43. Why are provisioners considered a last resort?**
+They introduce imperative logic, are hard to debug, don't integrate well with the state, and create tighter coupling.
+> **Explanation:** HashiCorp recommends using dedicated configuration management tools (like Ansible) or cloud-native features (like AWS User Data or custom AMIs/Packer) instead of provisioners.
+
+**44. What is the difference between `local-exec` and `remote-exec` provisioners?**
+`local-exec` runs commands on the machine running Terraform. `remote-exec` runs commands on the provisioned remote resource via SSH or WinRM.
+> **Explanation:** If you need to trigger a local python script after creation, use `local-exec`. If you need to run `apt-get install` on the new server, use `remote-exec`.
+
+**45. What is a backend in Terraform?**
+A backend determines how Terraform stores state and whether operations like `apply` are performed locally or remotely (e.g., Terraform Cloud).
+> **Explanation:** The backend defines the "storage layer" for the `terraform.tfstate` file, shifting it from your local hard drive to a secure, shared location.
+
+**46. What backends does Terraform support?**
+Local, S3, GCS, Azure Blob Storage, Consul, Terraform Cloud/Enterprise, HTTP, and more.
+> **Explanation:** This wide support ensures you can keep your state in the same cloud ecosystem where your infrastructure lives.
+
+**47. What is workspace in Terraform?**
+Workspaces allow you to maintain multiple state files for the same configuration, typically used for managing multiple environments (dev, staging, prod).
+> **Explanation:** It allows you to reuse the exact same `.tf` files to spin up isolated infrastructures. Terraform dynamically points to a different state file based on the active workspace.
+
+**48. What are the commands to manage Terraform workspaces?**
+`terraform workspace new`, `terraform workspace list`, `terraform workspace select`, `terraform workspace delete`, `terraform workspace show`.
+> **Explanation:** These commands act similarly to Git branches, allowing you to quickly switch contexts between different environments.
+
+**49. What is the difference between workspaces and separate directories for environments?**
+Workspaces share the same configuration but have separate state files. Separate directories provide full isolation including different configurations.
+> **Explanation:** Workspaces are better for identical environments. Separate directories are safer when dev and prod diverge significantly in architecture.
+
+**50. How do you pass sensitive values in Terraform?**
+Using environment variables (`TF_VAR_<name>`), `.tfvars` files (not committed to VCS), or secret management tools like Vault.
+> **Explanation:** Hardcoding passwords in code exposes them in your Git history. Injecting them at runtime ensures they stay secure.
+
+**51. What is `sensitive = true` in a variable?**
+It marks a variable as sensitive so its value is redacted from CLI output and logs.
+> **Explanation:** Even if you pass a password securely, Terraform will print it during the `plan` output. This flag ensures it prints as `(sensitive value)` instead.
+
+**52. What is the `terraform output` command?**
+It displays the values of output variables defined in the configuration after a successful apply.
+> **Explanation:** Useful for easily grabbing the endpoint URL of a database or IP of a server without digging through the cloud console.
+
+**53. What is a dynamic block in Terraform?**
+A `dynamic` block allows you to generate repeated nested blocks within a resource dynamically based on a collection.
+> **Explanation:** If a resource requires multiple nested `ingress` rules, a dynamic block acts like a loop, preventing you from manually writing out 20 repetitive blocks.
+
+**54. What are Terraform expressions?**
+Expressions compute values in configuration using references, functions, operators, conditionals, and `for` expressions.
+> **Explanation:** They provide the programmatic power to manipulate data (like math operations or string formatting) inside your declarative configuration.
+
+**55. What is a `for` expression in Terraform?**
+It transforms a list or map into another list or map using a concise syntax: `[for item in list : transformation]`.
+> **Explanation:** It's the Terraform equivalent of a Python list comprehension or a JavaScript `.map()`, used to format data structures dynamically.
+
+**56. What is the `splat` expression in Terraform?**
+Shorthand to extract attribute values from all elements of a list: `aws_instance.servers[*].id`.
+> **Explanation:** Instead of writing a complex loop to get the IDs of 5 servers, the splat operator `[*]` concisely grabs them all and returns them as a single list.
+
+**57. What are built-in functions in Terraform?**
+Terraform provides built-in functions for strings, numbers, collections, encoding, filesystem, date/time, etc. (e.g., `join()`, `lookup()`, `merge()`, `length()`).
+> **Explanation:** While Terraform isn't a full programming language, these functions provide necessary utilities to manipulate strings and data structures before passing them to the cloud provider.
+
+**58. What is `templatefile()` function?**
+It reads a file and renders it as a template, substituting variable values — useful for user data scripts.
+> **Explanation:** It allows you to inject Terraform variables into a bash script or JSON policy file dynamically, separating complex scripts from your `.tf` files.
+
+**59. What is the `file()` function?**
+It reads the contents of a file at the given path and returns it as a string.
+> **Explanation:** Useful when you need to pass a static file (like an SSH public key or a generic policy document) into a resource attribute without embedding the whole text.
+
+**60. What is `terraform state` command?**
+A set of subcommands to manage the Terraform state file directly: `list`, `show`, `mv`, `rm`, `pull`, `push`.
+> **Explanation:** These advanced commands act as "surgery" tools for the state file, allowing you to fix tracking issues without destroying actual infrastructure.
+
+---
+
+## 🔴 Advanced Level (61–85)
+
+**61. How do you manage multiple environments in Terraform?**
+Using workspaces, separate directories per environment, or tools like Terragrunt to DRY up configurations.
+> **Explanation:** Separate directories using remote state is the most robust industry standard, while Terragrunt is heavily adopted for large-scale multi-environment setups to keep code extremely clean.
+
+**62. What is Terragrunt?**
+A thin wrapper for Terraform that adds features like DRY configurations, remote state management, dependency management, and hooks.
+> **Explanation:** Terragrunt sits "on top" of Terraform, allowing you to define your backend and variables once globally, automatically passing them down to hundreds of Terraform modules.
+
+**63. What is the `terraform_remote_state` data source?**
+It reads output values from another Terraform state file, enabling cross-stack data sharing.
+> **Explanation:** If your networking team deploys the VPC and outputs the ID, your application team can use this data source to fetch that VPC ID directly from the network team's state file.
+
+**64. How do you handle Terraform state migration?**
+Using `terraform state mv` to move resources within state, or `terraform init -migrate-state` when changing backends.
+> **Explanation:** If you change the name of a module in your code, Terraform will want to destroy the old one and create the new one. `state mv` tells Terraform "this is the same resource, just under a new name".
+
+**65. What is partial configuration in Terraform backends?**
+Providing only some backend configuration in the code and supplying the rest via `-backend-config` flags during `terraform init`, useful for keeping secrets out of VCS.
+> **Explanation:** You can define that you use S3 in the code, but pass the bucket name and access keys dynamically during the pipeline run to maintain security.
+
+**66. What are provider aliases in Terraform?**
+Aliases allow multiple configurations of the same provider (e.g., multiple AWS regions or accounts) to be used within the same configuration.
+> **Explanation:** This is essential for deploying a global application where some resources live in `us-east-1` and others in `eu-west-1` within the exact same deployment.
+
+**67. How do you manage Terraform provider versions?**
+Using the `required_providers` block with version constraints and the `.terraform.lock.hcl` file to lock specific provider versions.
+> **Explanation:** Providers update frequently with breaking changes. Pinning versions ensures your code doesn't suddenly fail when AWS releases a new API version.
+
+**68. What is the `.terraform.lock.hcl` file?**
+A dependency lock file that records the exact provider versions used so that all team members get the same versions.
+> **Explanation:** Similar to `package-lock.json` in Node.js, this file should be committed to Git to ensure deterministic initialization across all environments.
+
+**69. What is the `required_version` constraint in Terraform?**
+It specifies which versions of the Terraform CLI are compatible with the configuration, enforcing consistency.
+> **Explanation:** Upgrading from Terraform 1.4 to 1.5 might introduce new syntax. This block ensures everyone on the team is running a compatible binary version.
+
+**70. How does Terraform handle circular dependencies?**
+Terraform doesn't support circular dependencies — it will throw an error. You must restructure your configuration to break the cycle.
+> **Explanation:** If Resource A depends on Resource B, and Resource B depends on Resource A, the dependency graph cannot resolve. You must use outputs, data sources, or intermediate resources to untangle it.
+
+**71. What is the difference between `terraform apply` and `terraform apply -auto-approve`?**
+The `-auto-approve` flag skips the interactive confirmation prompt, applying changes immediately — typically used in CI/CD pipelines.
+> **Explanation:** In automation pipelines (like Jenkins), there is no human to type "yes", so this flag bypasses the safety prompt.
+
+**72. How do you use Terraform in CI/CD pipelines?**
+By running `terraform init`, `terraform validate`, `terraform plan`, and `terraform apply` in pipeline stages, often with remote backends and service account credentials.
+> **Explanation:** This removes human access to production credentials, forcing all infrastructure changes to pass through automated testing and peer review in pull requests.
+
+**73. What is a Terraform module registry?**
+A centralized repository (public or private) where reusable Terraform modules are published with versioning and documentation.
+> **Explanation:** Enterprise companies often run a private registry via Terraform Cloud to share company-approved infrastructure patterns internally.
+
+**74. How do you version Terraform modules?**
+Modules from registries use version constraints: `version = "~> 3.0"`. Local modules don't have built-in versioning.
+> **Explanation:** Using tags in Git repositories allows you to lock module sources to specific versions (`?ref=v1.0.0`), preventing upstream changes from breaking your app.
+
+**75. What is the difference between `=` and `==` in Terraform?**
+`=` is used for assignment in configuration. `==` is used for equality comparison in expressions and conditions.
+> **Explanation:** You assign an AMI to an instance using `ami = "ami-123"`, but you check if an environment is production using `var.env == "prod"`.
+
+**76. How do you use conditional expressions in Terraform?**
+Using ternary syntax: `condition ? true_value : false_value`. Example: `var.env == "prod" ? "m5.large" : "t3.micro"`.
+> **Explanation:** This is the primary way to inject logic, allowing code to adapt dynamically based on variables without writing entirely separate configurations.
+
+**77. What is `moved` block in Terraform?**
+Introduced in Terraform 1.1, the `moved` block allows renaming or moving resources in the state without destroying and recreating them.
+> **Explanation:** It acts as code-based refactoring. Instead of using the command-line `state mv`, you declare the move in the code, which is safer and reproducible for teammates.
+
+**78. What is the `check` block in Terraform?**
+Introduced in Terraform 1.5, `check` blocks let you define assertions about your infrastructure that run after apply but don't block it.
+> **Explanation:** It allows for continuous validation, like verifying an API endpoint returns a 200 OK after deployment, reporting a warning if it fails.
+
+**79. What is the `precondition` and `postcondition` in Terraform?**
+Custom validation rules within resource or data source `lifecycle` blocks that verify conditions before or after resource operations.
+> **Explanation:** They act as strict guardrails, halting execution if a rule is violated (e.g., stopping creation if a provided AMI ID does not belong to a specific secure account).
+
+**80. How do you test Terraform configurations?**
+Using `terraform validate`, `terraform plan`, linting tools (tflint), security scanners (tfsec, Checkov), and Terraform's native testing framework (`terraform test`).
+> **Explanation:** This layers testing from simple syntax checks, to security misconfigurations, up to deploying actual sandbox infrastructure to verify behavior.
+
+**81. What is `terraform test` command?**
+A native testing framework (Terraform 1.6+) that allows writing `.tftest.hcl` files to define integration tests for your modules.
+> **Explanation:** It standardizes testing directly within HashiCorp's ecosystem, replacing the need for external frameworks like Terratest for standard use cases.
+
+**82. How do you handle secrets in Terraform state?**
+Use encrypted remote backends, enable state encryption, restrict access using IAM policies, and avoid storing secrets in plain-text variables.
+> **Explanation:** State files contain the final outputs of resources, including passwords. If you don't encrypt and restrict access to the backend (e.g., S3), those passwords can be stolen.
+
+**83. What is Open Policy Agent (OPA) in the context of Terraform?**
+OPA is a policy engine used with Terraform (via Conftest) to enforce governance rules on Terraform plans before applying them.
+> **Explanation:** It parses the JSON output of `terraform plan` to programmatically deny actions, like "No public S3 buckets allowed" or "All instances must have a CostCenter tag."
+
+**84. What is Sentinel in Terraform?**
+Sentinel is HashiCorp's policy-as-code framework used in Terraform Enterprise/Cloud to enforce compliance and governance policies.
+> **Explanation:** It is HashiCorp's enterprise alternative to OPA, deeply integrated into their paid products to enforce strict guardrails on what users can deploy.
+
+**85. What is drift detection in Terraform?**
+Drift is when the real infrastructure differs from the Terraform state. `terraform plan` detects drift and shows what needs to be changed to reconcile.
+> **Explanation:** If an engineer manually tweaks a security group in the AWS console, the infrastructure has "drifted." Terraform detects this and will revert the manual change during the next apply.
+
+---
+
+## ⚙️ Scenario-Based & Best Practices (86–100)
+
+**86. How would you refactor a large Terraform monolith?**
+Break it into reusable modules, split state files by environment or service, use `terraform_remote_state` for cross-stack references, and introduce a tool like Terragrunt.
+> **Explanation:** Large monoliths take forever to `plan` and risk massive blast radiuses. Splitting them into smaller, decoupled state files isolates risk and improves speed.
+
+**87. What happens if `terraform apply` fails midway?**
+Terraform applies changes incrementally. Resources already created remain in the state. You can re-run `terraform apply` to attempt the remaining changes.
+> **Explanation:** Terraform is resilient. It updates the state file for whatever succeeded before the crash, ensuring that subsequent runs only pick up where it left off.
+
+**88. How do you import an existing resource into Terraform without downtime?**
+Use `terraform import` to bring the resource into state, then write the matching configuration, and verify with `terraform plan` showing no changes.
+> **Explanation:** If `plan` shows changes, your code doesn't perfectly match the real world yet. You iterate on your code until the plan is entirely clean before applying.
+
+**89. How do you prevent accidental deletion of critical resources?**
+Use `prevent_destroy = true` in the `lifecycle` block, apply IAM policies, and use Sentinel/OPA policies in CI/CD.
+> **Explanation:** Combining code-level protection (`prevent_destroy`) with cloud-level protection (IAM restrictions) ensures maximum safety for things like production databases.
+
+**90. What is the best way to structure a Terraform project for a large team?**
+Use a mono-repo or poly-repo with separate state per environment, shared module library, remote backend with locking, CI/CD automation, and code review for plans.
+> **Explanation:** This enables parallel work. Developers update modules in a shared repo, and applications consume specific versions of those modules via pipelines.
+
+**91. How do you manage Terraform state for multiple AWS accounts?**
+Use separate state files per account, assume roles via provider aliases, and use a centralized S3 bucket with DynamoDB locking.
+> **Explanation:** The centralized S3 bucket (often in a dedicated "DevOps" AWS account) securely holds all states, while Terraform assumes roles to reach out and deploy into the target accounts.
+
+**92. What would you do if the Terraform state file gets corrupted?**
+Restore from a backup (remote backends have versioning), use `terraform state pull/push`, or manually repair state with `terraform state` commands.
+> **Explanation:** Because the state file is just JSON, advanced users can surgically repair it. However, restoring from an S3 version history is vastly safer and faster.
+
+**93. How do you handle resource renaming in Terraform without recreation?**
+Use the `moved` block (Terraform 1.1+) to declare the resource has been moved, which updates the state without destroying and recreating.
+> **Explanation:** Prior to 1.1, you had to manually run CLI commands to fix the tracking. Now, the `moved` block cleanly instructs Terraform about the rename natively in the code.
+
+**94. What is the impact of using `terraform destroy` in production?**
+It removes all managed resources. Always use `-target` to limit scope if needed, add `prevent_destroy`, and require explicit approval in pipelines.
+> **Explanation:** It causes complete catastrophic downtime. Running it should be inherently blocked by pipeline logic or IAM permissions in production environments.
+
+**95. How do you ensure Terraform code quality in a team?**
+Enforce `terraform fmt` and `terraform validate` in CI, use TFLint for linting, Checkov/tfsec for security, and peer review for plans.
+> **Explanation:** Embedding these checks in GitHub Actions ensures that poorly formatted or insecure code cannot be merged into the main branch.
+
+**96. How would you handle a provider upgrade that introduces breaking changes?**
+Pin the provider version in `required_providers`, test in a non-production environment, review the provider changelog, update configurations, and apply incrementally.
+> **Explanation:** You never "float" provider versions (e.g. `version = "> 3.0"`). Always pin them, read the upgrade guide, and refactor deprecated syntax before bumping the version number.
+
+**97. What strategy do you use to avoid state file conflicts in a team?**
+Use a remote backend with state locking (S3 + DynamoDB), require all applies through CI/CD, and never allow local applies in production.
+> **Explanation:** Restricting applies to an automated pipeline ensures they happen sequentially, completely eliminating the human risk of concurrent executions.
+
+**98. How do you use Terraform with Kubernetes?**
+Use the Kubernetes provider or Helm provider to manage K8s resources (namespaces, deployments, configmaps) via Terraform alongside cloud infrastructure.
+> **Explanation:** This allows you to stand up an entire EKS cluster AND deploy the foundational software (like ingress controllers) in a single unified Terraform workflow.
+
+**99. What is the difference between Terraform Open Source, Terraform Cloud, and Terraform Enterprise?**
+Open Source is the free CLI tool. Terraform Cloud adds remote state, runs, and collaboration features with a SaaS model. Terraform Enterprise is self-hosted with advanced SSO, audit logging, and Sentinel policies.
+> **Explanation:** As organizations scale, they move from the CLI tool to the Cloud/Enterprise products for built-in team governance, RBAC, and policy enforcement.
+
+**100. What are the alternatives to Terraform and when would you choose them?**
+Pulumi (general-purpose languages), AWS CloudFormation (AWS-native), Azure Bicep (Azure-native), Ansible (configuration management + infra), CDK (code-first). Choose Terraform for multi-cloud, wide ecosystem, and declarative IaC needs.
+> **Explanation:** Terraform is the industry standard for multi-cloud declarative infrastructure. Pulumi is preferred if developers want to use Python/TypeScript instead of HCL. CloudFormation is used exclusively for purely AWS-native shops.
