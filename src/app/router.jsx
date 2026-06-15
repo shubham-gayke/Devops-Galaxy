@@ -3,19 +3,11 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Layout from '../components/Layout/Layout'
 import PageSkeleton from '../components/Layout/PageSkeleton'
 
-// Code-split each route — the JS chunk for each page only downloads when the
-// user navigates to that route. None of these are loaded at startup.
-const GitPage       = lazy(() => import('../routes/GitPage'))
-const TerraformPage = lazy(() => import('../routes/TerraformPage'))
-const AnsiblePage   = lazy(() => import('../routes/AnsiblePage'))
-const AwsPage       = lazy(() => import('../routes/AwsPage'))
-const InterviewPage = lazy(() => import('../routes/InterviewPage'))
-
-const withSuspense = (Component) => (
-  <Suspense fallback={<PageSkeleton />}>
-    <Component />
-  </Suspense>
-)
+import GitPage from '../routes/GitPage'
+import TerraformPage from '../routes/TerraformPage'
+import AnsiblePage from '../routes/AnsiblePage'
+import AwsPage from '../routes/AwsPage'
+import InterviewPage from '../routes/InterviewPage'
 
 export const router = createBrowserRouter([
   {
@@ -23,11 +15,11 @@ export const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { index: true,           element: <Navigate to="/git" replace /> },
-      { path: 'git',           element: withSuspense(GitPage) },
-      { path: 'terraform',     element: withSuspense(TerraformPage) },
-      { path: 'ansible',       element: withSuspense(AnsiblePage) },
-      { path: 'aws',           element: withSuspense(AwsPage) },
-      { path: 'interview',     element: withSuspense(InterviewPage) },
+      { path: 'git',           element: <GitPage /> },
+      { path: 'terraform',     element: <TerraformPage /> },
+      { path: 'ansible',       element: <AnsiblePage /> },
+      { path: 'aws',           element: <AwsPage /> },
+      { path: 'interview',     element: <InterviewPage /> },
       { path: '*',             element: (
         <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
           <h2 style={{ color: 'var(--text-main)', fontSize: '2rem' }}>404 - Page Not Found</h2>

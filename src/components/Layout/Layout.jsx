@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { markdownCache } from '../../features/markdown/markdownCache'
 import { ArrowUp } from 'lucide-react'
 import Header from './Header'
 import Sidebar from './Sidebar'
@@ -21,6 +22,21 @@ export default function Layout() {
   const location = useLocation()
   const { theme, setTheme } = useTheme()
   const { scrollProgress, showScrollTop } = useScrollProgress()
+
+  // Prefetch all markdown files in the background on initial load
+  // This guarantees absolutely instant tab switching
+  React.useEffect(() => {
+    const pages = ['git', 'terraform', 'ansible', 'aws', 'interview']
+    pages.forEach(page => {
+      const url = `/content/${page}.md`
+      if (!markdownCache.has(url)) {
+        fetch(url)
+          .then(r => r.text())
+          .then(content => markdownCache.set(url, { content }))
+          .catch(() => {}) // Ignore prefetch errors
+      }
+    })
+  }, [])
 
   // These are set by child routes via the LayoutContext
   const [layoutCtx, setLayoutCtx] = useState({
@@ -75,20 +91,12 @@ export default function Layout() {
         )}
 
         {/* Fast route transitions without wait delays */}
-        <AnimatePresence>
-          <motion.div
-            key={location.pathname}
-            className="content-area"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ErrorBoundary>
-              {/* Outlet receives setLayoutCtx so each page can push its data up */}
-              <Outlet context={{ setLayoutCtx }} />
-            </ErrorBoundary>
-          </motion.div>
-        </AnimatePresence>
+        <div className="content-area">
+          <ErrorBoundary>
+            {/* Outlet receives setLayoutCtx so each page can push its data up */}
+            <Outlet context={{ setLayoutCtx }} />
+          </ErrorBoundary>
+        </div>
       </main>
 
       {/* Scroll to top */}
