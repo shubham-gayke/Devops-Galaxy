@@ -18,7 +18,7 @@ export function buildSearchIndex(content, pageKey) {
   const index = matches.map(m => ({
     level: m[1].length,
     title: m[2].trim(),
-    id: m[2].trim().toLowerCase().replace(/[^\w]+/g, '-'),
+    id: m[2].trim().toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, ''),
   }))
 
   searchIndexCache.set(pageKey, index)

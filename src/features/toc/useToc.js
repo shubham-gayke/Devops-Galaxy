@@ -34,7 +34,7 @@ export function useToc(content, pageKey) {
     matches.forEach(match => {
       const level = match[1].length
       const text = stripEmoji(match[2])
-      const id = text.toLowerCase().replace(/[^\w]+/g, '-')
+      const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '')
       const item = { id, title: text, level, children: [] }
 
       if (level <= 2) {

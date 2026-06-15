@@ -24,35 +24,31 @@ const stripEmoji = (text) =>
     .replace(/  +/g, ' ')
     .trim()
 
-const makeId = (text) => text.toLowerCase().replace(/[^\w]+/g, '-')
-
-// node.position.start.line (from mdast) is always unique per heading —
-// appending it eliminates duplicate IDs when two headings share the same text.
-const makeUniqueId = (text, node) => {
-  const base = makeId(text)
-  const line = node?.position?.start?.line
-  return line != null ? `${base}-L${line}` : base
-}
+// IMPORTANT: This slug function MUST match the one in useToc.js exactly.
+// Both use: text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '')
+// If you change one, change the other. The sidebar, scroll spy, and content
+// TOC links all rely on ID consistency between this renderer and the TOC cache.
+const makeId = (text) => text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '')
 
 // ======================== HEADING RENDERERS ========================
 
-const H1 = ({ node, children, ...props }) => {
+const H1 = ({ node: _node, children, ...props }) => {
   const text = stripEmoji(extractText(children).trim())
-  const id = makeUniqueId(text, node)
+  const id = makeId(text)
   return (
-    <h1 id={id} className="heading-observe scroll-mt-24" {...props}>
+    <h1 id={id} className="heading-observe" {...props}>
       {text}
     </h1>
   )
 }
 
-const H2 = ({ node, children, ...props }) => {
+const H2 = ({ node: _node, children, ...props }) => {
   const text = stripEmoji(extractText(children).trim())
-  const id = makeUniqueId(text, node)
+  const id = makeId(text)
 
   if (text.includes('Cloud Service Models')) {
     return (
-      <div id={id} className="heading-observe scroll-mt-24">
+      <div id={id} className="heading-observe">
         <h2 {...props}>{text}</h2>
         <ServiceDiagram />
       </div>
@@ -61,7 +57,7 @@ const H2 = ({ node, children, ...props }) => {
 
   if (text.includes('How Git Works Internally')) {
     return (
-      <div id={id} className="heading-observe scroll-mt-24">
+      <div id={id} className="heading-observe">
         <h2 {...props}>{text}</h2>
         <WorkflowDiagram />
       </div>
@@ -69,19 +65,19 @@ const H2 = ({ node, children, ...props }) => {
   }
 
   return (
-    <h2 id={id} className="heading-observe scroll-mt-24" {...props}>
+    <h2 id={id} className="heading-observe" {...props}>
       {text}
     </h2>
   )
 }
 
-const H3 = ({ node, children, ...props }) => {
+const H3 = ({ node: _node, children, ...props }) => {
   const text = stripEmoji(extractText(children).trim())
-  const id = makeUniqueId(text, node)
+  const id = makeId(text)
 
   if (text.includes('Architecture Diagram - IAM')) {
     return (
-      <div id={id} className="heading-observe scroll-mt-24">
+      <div id={id} className="heading-observe">
         <h3 {...props}>{text}</h3>
         <IAMDiagram />
       </div>
@@ -90,7 +86,7 @@ const H3 = ({ node, children, ...props }) => {
 
   if (text.includes('Architecture Diagram - EC2')) {
     return (
-      <div id={id} className="heading-observe scroll-mt-24">
+      <div id={id} className="heading-observe">
         <h3 {...props}>{text}</h3>
         <EC2Diagram />
       </div>
@@ -99,7 +95,7 @@ const H3 = ({ node, children, ...props }) => {
 
   if (text.includes('Architecture Diagram - VPC')) {
     return (
-      <div id={id} className="heading-observe scroll-mt-24">
+      <div id={id} className="heading-observe">
         <h3 {...props}>{text}</h3>
         <VPCDiagram />
       </div>
@@ -107,7 +103,7 @@ const H3 = ({ node, children, ...props }) => {
   }
 
   return (
-    <h3 id={id} className="heading-observe scroll-mt-24 mt-6 mb-3" {...props}>
+    <h3 id={id} className="heading-observe" {...props}>
       {text}
     </h3>
   )
@@ -126,13 +122,43 @@ const Pre = ({ children }) => {
   return <pre>{children}</pre>
 }
 
+// Handle in-page #hash links: React Router intercepts normal <a> clicks,
+// so we need to manually perform the smooth scroll for anchor links.
+const Anchor = ({ node: _node, href, children, ...props }) => {
+  if (href && href.startsWith('#')) {
+    const handleClick = (e) => {
+      e.preventDefault()
+      const targetId = href.slice(1) // remove the #
+      const el = document.getElementById(targetId)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        el.classList.add('highlight-pulse')
+        setTimeout(() => el.classList.remove('highlight-pulse'), 1500)
+      }
+    }
+    return (
+      <a href={href} onClick={handleClick} {...props}>
+        {children}
+      </a>
+    )
+  }
+  // External links open in new tab
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" {...props}>
+      {children}
+    </a>
+  )
+}
+
 // ======================== MAIN RENDERER ========================
 
 /**
  * Memoized ReactMarkdown wrapper.
  * - `COMPONENTS` map is defined at module level — never recreated on re-renders.
- * - Heading IDs include line numbers from the mdast to prevent DOM ID duplicates.
- * - All diagrams use LazyDiagram (Intersection Observer + React.lazy).
+ * - Heading IDs use the same slug function as useToc.js, ensuring sidebar/scrollspy/
+ *   content links all point to matching DOM elements.
+ * - The `a` override intercepts hash links for smooth scrolling instead of
+ *   letting React Router handle them as route navigation.
  */
 const COMPONENTS = {
   h1: H1,
@@ -140,6 +166,7 @@ const COMPONENTS = {
   h3: H3,
   code: Code,
   pre: Pre,
+  a: Anchor,
   strong: ({ node: _node, ...props }) => <strong {...props} />,
   em: ({ node: _node, ...props }) => <em {...props} />,
   blockquote: ({ node: _node, ...props }) => <blockquote {...props} />,
