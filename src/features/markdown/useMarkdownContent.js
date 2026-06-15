@@ -19,22 +19,26 @@ export function useMarkdownContent(page) {
   })
 
   useEffect(() => {
-    // Already cached — no fetch needed
+    let cancelled = false
+    
+    // Always start with loading: true to ensure the cool animation plays
+    setState(s => ({ ...s, loading: true, error: null }))
+
+    // If already cached, just wait 2 seconds then show it
     if (markdownCache.has(url)) {
       const { content } = markdownCache.get(url)
-      setState({ content, loading: false, error: null })
-      return
+      setTimeout(() => {
+        if (!cancelled) setState({ content, loading: false, error: null })
+      }, 2000)
+      return () => { cancelled = true }
     }
-
-    let cancelled = false
-    setState(s => ({ ...s, loading: true, error: null }))
 
     Promise.all([
       fetch(url).then(r => {
         if (!r.ok) throw new Error(`Failed to load ${url}: ${r.statusText}`)
         return r.text()
       }),
-      // Enforce a minimum 2-second loading time so the user can enjoy the cool animation
+      // Enforce a minimum 2-second loading time for fresh fetches too
       new Promise(resolve => setTimeout(resolve, 2000))
     ])
       .then(([content]) => {

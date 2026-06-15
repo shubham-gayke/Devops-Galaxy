@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp } from 'lucide-react'
 import Header from './Header'
 import Sidebar from './Sidebar'
+import ErrorBoundary from './ErrorBoundary'
 import { useTheme } from '../../hooks/useTheme'
 import { useScrollProgress } from '../../hooks/useScrollProgress'
 import { useScrollSpy } from '../../hooks/useScrollSpy'
@@ -83,8 +84,10 @@ export default function Layout() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25 }}
           >
-            {/* Outlet receives setLayoutCtx so each page can push its data up */}
-            <Outlet context={{ setLayoutCtx }} />
+            <ErrorBoundary>
+              {/* Outlet receives setLayoutCtx so each page can push its data up */}
+              <Outlet context={{ setLayoutCtx }} />
+            </ErrorBoundary>
           </motion.div>
         </AnimatePresence>
       </main>
