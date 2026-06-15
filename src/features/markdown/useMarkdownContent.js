@@ -9,7 +9,7 @@ import { markdownCache } from './markdownCache'
  * @returns {{ content: string|null, loading: boolean, error: Error|null }}
  */
 export function useMarkdownContent(page) {
-  const url = `/content/${page}.md`
+  const url = `/content/${page}.md?v=2`
   const cached = markdownCache.get(url)
 
   const [state, setState] = useState({

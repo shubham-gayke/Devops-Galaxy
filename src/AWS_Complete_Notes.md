@@ -6728,3 +6728,121 @@ Below is the VPC architecture diagram showing the 3-tier design with public and 
 ---
 
 **Next Service:** We'll explore **S3 (Simple Storage Service)** — Virtually unlimited, highly durable object storage in the cloud.
+
+---
+
+## 3.4 S3 - Simple Storage Service
+
+**Durable, Scalable, Secure Object Storage in the AWS Cloud**
+
+### Architecture Diagram - S3
+
+![AWS S3 Architecture and Workflow](/s3-architecture.png)
+
+### How It Works (Workflow)
+
+1. **Create Bucket:** Choose a globally unique name and AWS Region.
+2. **Configure Options:** Set properties like versioning, encryption, block public access, lifecycle rules.
+3. **Upload Objects:** Upload files (objects) into the bucket.
+4. **Manage Access:** Use IAM policies, bucket policies and ACLs to control access.
+5. **Organize & Optimize:** Use prefixes (folders), lifecycle rules, storage classes to optimize cost.
+6. **Monitor & Audit:** Track usage with CloudWatch and S3 Server Access Logs.
+7. **Protect & Retain:** Enable versioning, MFA Delete, Replication and Object Lock as needed.
+
+### Amazon S3 Bucket
+
+*   **Objects:** Stored as Key-Value pairs (e.g., `photo.jpg`, `report.pdf`, `data.csv`, `video.mp4`, `logs/2024/...`).
+*   **Prefixes (Virtual Folders):** `images/`, `docs/`, `logs/`, `backup/`, `archive/`.
+
+#### Bucket Properties
+*   Versioning
+*   Encryption (SSE)
+*   Block Public Access
+*   Lifecycle Rules
+*   Replication
+*   Object Lock (WORM)
+*   Logging
+*   Tags
+
+### Integrations
+
+*   **IAM:** Access Control
+*   **CloudFront:** CDN
+*   **Lambda:** Event Trigger
+*   **CloudWatch:** Monitoring
+*   **AWS Backup:** Backup
+*   **Athena:** Query Data
+*   **Glue:** Data Catalog
+
+### Storage Classes (Optimize Cost)
+
+*   **S3 Standard:** Frequent access.
+*   **S3 Intelligent-Tiering:** Auto tiering.
+*   **S3 Standard-IA:** Infrequent access.
+*   **S3 One Zone-IA:** Infrequent access (stored in 1 AZ).
+*   **S3 Glacier Instant Retrieval:** Archive.
+*   **S3 Glacier Flexible Retrieval (Expedited/Standard/Bulk):** Deep archive.
+*   **S3 Glacier Deep Archive:** Lowest cost archive.
+
+### How It Works (Details)
+
+1. Data is uploaded as objects into a bucket.
+2. Each object is stored across multiple Availability Zones (at least 3 AZs).
+3. S3 provides 11 9's (99.999999999%) durability and high availability.
+4. You can organize objects using prefixes (similar to folders).
+5. Access is controlled using IAM, Bucket Policies, ACLs and Access Points.
+6. Lifecycle rules move objects between storage classes or expire them.
+7. Events can trigger actions via Lambda or other AWS services.
+
+### Tricky & Important Things
+
+> [!WARNING]
+> *   Bucket names are **globally unique** across all AWS accounts (forever).
+> *   Objects don't have real folders. Prefixes are part of the object key.
+> *   Changing storage class does NOT reduce immediate retrieval charges.
+> *   **DELETE != REALLY DELETE:** Deleted objects may still exist temporarily and incur charges (Glacier, replication, versions, MFA Delete, Object Lock).
+> *   ACLs are often misunderstood. Prefer **Bucket Policies + IAM**.
+> *   S3 is **STRONGLY consistent** for all operations (since Dec 2020).
+
+### Consistency Model
+
+S3 is **Strongly Consistent** for:
+*   PUTs (new objects)
+*   GETs
+*   LISTs
+*   DELETEs
+*   Metadata updates
+
+### Key S3 Features
+
+*   **Versioning:** Keep multiple versions of objects.
+*   **Cross-Region Replication (CRR):** Replicate across regions.
+*   **SSE Encryption:** SSE-S3, SSE-KMS, SSE-C.
+*   **Access Points:** Simplify access for applications.
+*   **Object Lock:** WORM protection (Compliance Mode).
+*   **Event Notifications:** Trigger Lambda/SNS/SQS on events.
+
+### Common Use Cases
+
+*   Data Lake
+*   Backup & DR
+*   Static Website Hosting
+*   Media Storage & Streaming
+*   Logs & Analytics
+*   ML & AI Datasets
+
+### Bucket Naming Rules
+
+*   3-63 characters long.
+*   Lowercase letters, numbers, dots (`.`) and hyphens (`-`).
+*   Must start and end with a letter or number.
+*   No consecutive dots (`..`).
+*   Not formatted as an IP address.
+*   No "xn--" prefix.
+
+### Key Points
+
+*   **Default encryption:** Enable it!
+*   **Always Block Public Access** unless intentionally public.
+*   Use **lifecycle rules** to control storage costs.
+*   Monitor with **CloudWatch** & **S3 Storage Lens**.
