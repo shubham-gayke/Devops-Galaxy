@@ -74,15 +74,14 @@ export default function Layout() {
           />
         )}
 
-        {/* Animate route transitions */}
-        <AnimatePresence mode="wait">
+        {/* Fast route transitions without wait delays */}
+        <AnimatePresence>
           <motion.div
             key={location.pathname}
             className="content-area"
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
+            transition={{ duration: 0.2 }}
           >
             <ErrorBoundary>
               {/* Outlet receives setLayoutCtx so each page can push its data up */}
