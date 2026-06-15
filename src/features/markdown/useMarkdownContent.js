@@ -29,12 +29,15 @@ export function useMarkdownContent(page) {
     let cancelled = false
     setState(s => ({ ...s, loading: true, error: null }))
 
-    fetch(url)
-      .then(r => {
+    Promise.all([
+      fetch(url).then(r => {
         if (!r.ok) throw new Error(`Failed to load ${url}: ${r.statusText}`)
         return r.text()
-      })
-      .then(content => {
+      }),
+      // Enforce a minimum 2-second loading time so the user can enjoy the cool animation
+      new Promise(resolve => setTimeout(resolve, 2000))
+    ])
+      .then(([content]) => {
         if (cancelled) return
         markdownCache.set(url, { content })
         setState({ content, loading: false, error: null })
