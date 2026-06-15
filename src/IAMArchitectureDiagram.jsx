@@ -61,6 +61,13 @@ const POLICIES = [
   'Customer Managed',
 ]
 
+const ROLES = [
+  { name: 'EC2 Role', desc: 'Allows EC2 instances to access S3/DynamoDB' },
+  { name: 'Lambda Role', desc: 'Allows Lambda to write to CloudWatch' },
+]
+
+const STEP_COLORS = ['#00d4ff', '#00ff88', '#a855f7', '#ff8c00', '#ff006e', '#ffd700', '#3b82f6']
+
 const RESOURCES = [
   'EC2','S3','RDS','Lambda','DynamoDB','...more'
 ]
@@ -122,10 +129,18 @@ export default function IAMArchitectureDiagram() {
 
       {/* CONTROLS */}
       <div className="nd-ctrl">
-        <button className="nd-playbtn" onClick={() => setPlaying(p => !p)}>
+        <button className="nd-playbtn iam-playbtn" onClick={() => setPlaying(p => !p)}>
           {playing ? 'II  Pause' : 'Play'}
         </button>
-        <span className="nd-stepinfo">Step {step+1}/7 — {STEPS[step].title}</span>
+        <span 
+          className="nd-stepinfo" 
+          style={{ 
+            color: STEP_COLORS[step], 
+            textShadow: `0 0 10px ${STEP_COLORS[step]}80` 
+          }}
+        >
+          Step {step+1}/7 — {STEPS[step].title}
+        </span>
       </div>
 
       {/* 3-PANEL BODY */}

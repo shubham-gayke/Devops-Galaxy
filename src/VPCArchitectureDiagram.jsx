@@ -37,6 +37,8 @@ const SECURITY = [
   { num:'C', name:'Inbound/Outbound',desc:'Control all traffic flow'  },
 ]
 
+const STEP_COLORS = ['#00d4ff', '#00ff88', '#a855f7', '#ff8c00', '#ff006e', '#ffd700', '#3b82f6']
+
 // Simple div-based route table row — no HTML table to overflow
 function RTRow({ dest, target, color }) {
   return (
@@ -114,7 +116,15 @@ export default function VPCArchitectureDiagram() {
         <button className="nd-playbtn vpc-playbtn" onClick={() => setPlaying(p => !p)}>
           {playing ? 'II  Pause' : 'Play'}
         </button>
-        <span className="nd-stepinfo">Step {step+1}/7 — {STEPS[step].title}</span>
+        <span 
+          className="nd-stepinfo" 
+          style={{ 
+            color: STEP_COLORS[step], 
+            textShadow: `0 0 10px ${STEP_COLORS[step]}80` 
+          }}
+        >
+          Step {step+1}/7 — {STEPS[step].title}
+        </span>
       </div>
 
       {/* 3-PANEL BODY */}
