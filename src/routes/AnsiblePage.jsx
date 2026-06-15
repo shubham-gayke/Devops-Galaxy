@@ -22,7 +22,7 @@ export default function AnsiblePage() {
     })
   }, [content, headings, setLayoutCtx])
 
-  if (loading) return <PageSkeleton />
+  if (loading) return <PageSkeleton title="Ansible" />
   if (error) return (
     <div style={{ padding: '2rem', color: 'var(--danger)' }}>
       Failed to load Ansible notes. Please refresh the page.

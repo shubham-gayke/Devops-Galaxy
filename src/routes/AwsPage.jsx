@@ -22,7 +22,7 @@ export default function AwsPage() {
     })
   }, [content, headings, setLayoutCtx])
 
-  if (loading) return <PageSkeleton />
+  if (loading) return <PageSkeleton title="AWS Cloud" />
   if (error) return (
     <div style={{ padding: '2rem', color: 'var(--danger)' }}>
       Failed to load AWS notes. Please refresh the page.

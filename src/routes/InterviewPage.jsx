@@ -20,7 +20,7 @@ export default function InterviewPage() {
     })
   }, [content, setLayoutCtx])
 
-  if (loading) return <PageSkeleton />
+  if (loading) return <PageSkeleton title="Interview Q&A" />
   if (error) return (
     <div style={{ padding: '2rem', color: 'var(--danger)' }}>
       Failed to load Interview Q&A. Please refresh the page.

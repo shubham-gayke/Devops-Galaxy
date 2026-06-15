@@ -22,7 +22,7 @@ export default function TerraformPage() {
     })
   }, [content, headings, setLayoutCtx])
 
-  if (loading) return <PageSkeleton />
+  if (loading) return <PageSkeleton title="Terraform" />
   if (error) return (
     <div style={{ padding: '2rem', color: 'var(--danger)' }}>
       Failed to load Terraform notes. Please refresh the page.

@@ -24,7 +24,7 @@ export default function GitPage() {
     })
   }, [content, headings, setLayoutCtx])
 
-  if (loading) return <PageSkeleton />
+  if (loading) return <PageSkeleton title="Git & GitHub" />
   if (error) return (
     <div style={{ padding: '2rem', color: 'var(--danger)' }}>
       Failed to load Git notes. Please refresh the page.
