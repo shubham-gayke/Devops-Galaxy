@@ -8,6 +8,7 @@ import VPCDiagram from '../diagrams/VPCDiagram'
 import EC2Diagram from '../diagrams/EC2Diagram'
 import ServiceDiagram from '../diagrams/ServiceDiagram'
 import S3Diagram from '../diagrams/S3Diagram'
+import Route53Diagram from '../diagrams/Route53Diagram'
 
 // ======================== HELPERS ========================
 
@@ -108,6 +109,15 @@ const H3 = ({ node: _node, children, ...props }) => {
       <div id={id} className="heading-observe">
         <h3 {...props}>{text}</h3>
         <S3Diagram />
+      </div>
+    )
+  }
+
+  if (text.includes('Architecture Diagram - Route 53')) {
+    return (
+      <div id={id} className="heading-observe">
+        <h3 {...props}>{text}</h3>
+        <Route53Diagram />
       </div>
     )
   }
