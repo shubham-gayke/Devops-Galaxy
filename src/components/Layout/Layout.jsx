@@ -28,7 +28,7 @@ export default function Layout() {
   React.useEffect(() => {
     const pages = ['git', 'terraform', 'ansible', 'aws', 'interview']
     pages.forEach(page => {
-      const url = `/content/${page}.md`
+      const url = `/content/${page}.md?v=4`
       if (!markdownCache.has(url)) {
         fetch(url)
           .then(r => r.text())

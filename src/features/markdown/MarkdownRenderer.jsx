@@ -9,6 +9,7 @@ import EC2Diagram from '../diagrams/EC2Diagram'
 import ServiceDiagram from '../diagrams/ServiceDiagram'
 import S3Diagram from '../diagrams/S3Diagram'
 import Route53Diagram from '../diagrams/Route53Diagram'
+import ELBDiagram from '../diagrams/ELBDiagram'
 
 // ======================== HELPERS ========================
 
@@ -118,6 +119,15 @@ const H3 = ({ node: _node, children, ...props }) => {
       <div id={id} className="heading-observe">
         <h3 {...props}>{text}</h3>
         <Route53Diagram />
+      </div>
+    )
+  }
+
+  if (text.includes('Architecture Diagram - ELB')) {
+    return (
+      <div id={id} className="heading-observe">
+        <h3 {...props}>{text}</h3>
+        <ELBDiagram />
       </div>
     )
   }

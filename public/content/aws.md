@@ -7349,7 +7349,7 @@ Following these practices helps maintain a secure, available, and cost-effective
 - **Multi-Region:** Can use Route 53 with LBs in multiple regions for DR/geo.  
 - **CLI/CloudFormation:** All ELB resources (load balancer, listener, target group) are configurable via AWS CLI/CF/Terraform.
 
-### 30. Architecture Diagrams  
+### Architecture Diagram - ELB  
  *Example AWS ELB architecture: ALB in public subnets (fronted by Internet Gateway) routes traffic to targets in private subnets. The diagram shows Load Balancer subnets in multiple AZs and target subnets. (For illustration only.)*
 
 **Figure:** An example AWS ELB network diagram showing an internet-facing load balancer (in public subnets) distributing traffic to backend targets in private subnets across AZs.  
