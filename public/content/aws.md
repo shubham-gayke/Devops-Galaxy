@@ -6849,12 +6849,16 @@ S3 is **Strongly Consistent** for:
 
 
 ## 3.5 Route 53 - Scalable DNS and Traffic Routing
+
 ### Architecture Diagram - Route 53
 
+Below is the Route 53 architecture showing DNS routing and traffic management:
 
-# AWS Route 53 — Complete DevOps Notes (Console, Integrations, Tricky Concepts, Projects & Interview Q&A)
+![Route 53 Architecture](/AWS%20Route%2053%20architecture%20flow%20diagram.png)
 
-## 1) What is Amazon Route 53?
+---
+
+### 1) What is Amazon Route 53?
 
 Amazon Route 53 is AWS’s **highly available and scalable Domain Name System (DNS)** *(DNS: The internet's phonebook that translates human-readable domain names into machine-readable IP addresses)* **web service**. The name comes from "Route" (like Route 66, directing traffic) and "53" (the standard TCP/UDP port for DNS). *(TCP/UDP: Transmission Control Protocol and User Datagram Protocol are core network protocols for sending data over the internet)*
 
@@ -6867,7 +6871,7 @@ Unlike standard DNS services, Route 53 is deeply integrated with AWS resources l
 
 ---
 
-## 2) Why is Route 53 Critical for DevOps?
+### 2) Why is Route 53 Critical for DevOps?
 
 While traditional DNS just maps a name to an IP, modern cloud applications need dynamic DNS. We need Route 53 because:
 - **Global Resiliency:** Applications span multiple regions. Route 53 can route traffic based on user location or latency.
@@ -6878,7 +6882,7 @@ While traditional DNS just maps a name to an IP, modern cloud applications need 
 
 ---
 
-## 3) Core Components of Route 53
+### 3) Core Components of Route 53
 
 ### a) Domain Registrar
 Route 53 can register new domains directly. It handles the financial transaction and communicates with top-level domain (TLD) registries. *(TLD: The last segment of a domain name, like .com or .org).*
@@ -6907,7 +6911,7 @@ Used for hybrid environments. **Inbound Endpoints** allow on-prem networks to re
 
 ---
 
-## 4) Route 53 Routing Policies (Crucial for Architecture)
+### 4) Route 53 Routing Policies (Crucial for Architecture)
 
 Route 53 supports multiple routing algorithms, allowing fine-grained control over how traffic is distributed:
 
@@ -6921,7 +6925,7 @@ Route 53 supports multiple routing algorithms, allowing fine-grained control ove
 
 ---
 
-## 5) Step-by-step Console Setup
+### 5) Step-by-step Console Setup
 
 ### A. Create a Public Hosted Zone (Internet-facing)
 1. Go to **Route 53** in the AWS Console.
@@ -6953,7 +6957,7 @@ If you bought the domain on GoDaddy or Namecheap:
 
 ---
 
-## 6) Integrations in Modern Architectures
+### 6) Integrations in Modern Architectures
 
 - **Elastic Load Balancing (ALB/NLB):** Connect your root domain (`example.com`) directly to an ALB using an **Alias Record**.
 - **CloudFront:** Use an Alias Record to point a custom domain to a CloudFront distribution for global CDN caching.
@@ -6963,7 +6967,7 @@ If you bought the domain on GoDaddy or Namecheap:
 
 ---
 
-## 7) Tricky Concepts & Confusing Things
+### 7) Tricky Concepts & Confusing Things
 
 ### Alias vs. CNAME (Most frequent exam/interview topic)
 - **CNAME:** Maps a name to another name. Standard DNS. **Cannot** be used at the "zone apex" (the root domain, like `google.com`). You have to pay for CNAME queries.
@@ -6982,7 +6986,7 @@ DNS resolvers globally cache your records. If you set TTL to 86400 seconds (24 h
 
 ---
 
-## 8) Real DevOps Project Use Cases
+### 8) Real DevOps Project Use Cases
 
 ### Project 1: Multi-Region Active-Passive Disaster Recovery
 **Scenario:** An application is hosted in `us-east-1` (Primary) and duplicated in `eu-west-1` (Disaster Recovery / Standby).
@@ -7010,7 +7014,7 @@ DNS resolvers globally cache your records. If you set TTL to 86400 seconds (24 h
 
 ---
 
-## 9) 25 Interview Questions & Detailed Answers
+### 9) 25 Interview Questions & Detailed Answers
 
 **1. What is Amazon Route 53?**
 It is AWS's highly available, scalable Domain Name System (DNS) web service that handles domain registration, DNS routing, and health checking.
@@ -7092,5 +7096,5 @@ Yes. Route 53 has a **Global footprint**. It is resilient across multiple edge l
 
 ---
 
-## 10) Summary: The DevOps Golden Rule for Route 53
+### 10) Summary: The DevOps Golden Rule for Route 53
 Route 53 is the **"Global Router"** of the cloud. Never hardcode IPs. Always use **Alias Records** for AWS services, keep TTLs low before migrations, leverage **Health Checks** for automated resilience, and use **Private Hosted Zones** to keep internal microservice communication secure and flexible.
