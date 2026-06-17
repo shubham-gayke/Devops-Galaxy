@@ -51,10 +51,28 @@ export default function Layout() {
     layoutCtx.pageKey
   )
 
+  // Accordion toggle: opening a chapter collapses all other chapters.
+  // Service-level items toggle independently.
+  const chapterIdsRef = React.useRef(new Set())
+  React.useEffect(() => {
+    chapterIdsRef.current = new Set(layoutCtx.headings.map(h => h.id))
+  }, [layoutCtx.headings])
+
   const toggleSection = (id) =>
-    setOpenSections(prev =>
-      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
-    )
+    setOpenSections(prev => {
+      const isChapter = chapterIdsRef.current.has(id)
+      if (isChapter) {
+        // Accordion: if already open, close it; otherwise open it and close others
+        if (prev.includes(id)) {
+          return prev.filter(s => s !== id)
+        }
+        // Keep non-chapter IDs (service toggles) + only this chapter
+        const nonChapterIds = prev.filter(s => !chapterIdsRef.current.has(s))
+        return [id, ...nonChapterIds]
+      }
+      // Service-level: simple toggle
+      return prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    })
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id)

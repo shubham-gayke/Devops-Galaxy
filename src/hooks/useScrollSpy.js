@@ -40,19 +40,30 @@ export function useScrollSpy(headings, contentKey) {
     }
   }, [headings])
 
-  // Auto-expand only the CHAPTER level when scrolling.
-  // Service-level nodes are never auto-expanded — the user controls them manually.
+  // Accordion auto-expand: when scrolling into a new chapter, collapse all
+  // other chapters and expand only the active one. Service-level toggle
+  // states are preserved so manually opened services stay open.
   const autoExpandParent = useCallback((currentId) => {
+    // Build a set of all chapter (top-level) IDs for filtering
+    const chapterIds = new Set(headings.map(h => h.id))
+
+    // Find which chapter the active heading belongs to
     let chapterToOpen = null
 
     for (const chapter of headings) {
-      // Check if the active section is a direct child of this chapter
+      // The heading IS the chapter itself
+      if (chapter.id === currentId) {
+        chapterToOpen = chapter.id
+        break
+      }
+
+      // Direct child of this chapter
       if (chapter.children?.some(c => c.id === currentId)) {
         chapterToOpen = chapter.id
         break
       }
 
-      // Check if it's a grandchild (topic under a service)
+      // Grandchild (topic under a service)
       for (const service of (chapter.children || [])) {
         if (service.children?.some(gc => gc.id === currentId)) {
           chapterToOpen = chapter.id
@@ -65,10 +76,12 @@ export function useScrollSpy(headings, contentKey) {
 
     if (chapterToOpen) {
       setOpenSections(prev => {
-        if (!prev.includes(chapterToOpen)) {
-          return [...prev, chapterToOpen]
-        }
-        return prev
+        // Keep non-chapter IDs (service toggles) + the active chapter
+        const nonChapterIds = prev.filter(id => !chapterIds.has(id))
+        const alreadyCorrect = prev.includes(chapterToOpen) &&
+          prev.filter(id => chapterIds.has(id)).length === 1
+        if (alreadyCorrect) return prev
+        return [chapterToOpen, ...nonChapterIds]
       })
     }
   }, [headings])
