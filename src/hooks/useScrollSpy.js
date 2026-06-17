@@ -3,7 +3,11 @@ import { useEffect, useState, useRef, useCallback } from 'react'
 /**
  * Tracks which heading is currently in the viewport using IntersectionObserver.
  * When the user scrolls, the active heading ID is updated, the sidebar highlights
- * the corresponding item, and the parent section auto-expands.
+ * the corresponding item, and the parent chapter auto-expands.
+ *
+ * Service-level sections (e.g. "3.1 IAM") are NOT auto-expanded by scroll spy —
+ * they are managed independently by the Sidebar component so users can manually
+ * collapse/expand individual services.
  *
  * @param {object[]} headings - Heading items with { id, children }
  * @param {string} contentKey - Dependency key to reset observer when page changes
@@ -14,13 +18,16 @@ export function useScrollSpy(headings, contentKey) {
   const [openSections, setOpenSections] = useState([])
   const observerRef = useRef(null)
 
-  // Build a flat set of all known heading IDs (parent + child) for fast lookup
+  // Build a flat set of all known heading IDs (parent + child + grandchild) for fast lookup
   const allIdSetRef = useRef(new Set())
   useEffect(() => {
     const idSet = new Set()
     headings.forEach(h => {
       idSet.add(h.id)
-      h.children?.forEach(c => idSet.add(c.id))
+      h.children?.forEach(c => {
+        idSet.add(c.id)
+        c.children?.forEach(gc => idSet.add(gc.id))
+      })
     })
     allIdSetRef.current = idSet
   }, [headings])
@@ -33,15 +40,36 @@ export function useScrollSpy(headings, contentKey) {
     }
   }, [headings])
 
-  // Memoize the auto-expand logic to avoid re-creating the observer callback
+  // Auto-expand only the CHAPTER level when scrolling.
+  // Service-level nodes are never auto-expanded — the user controls them manually.
   const autoExpandParent = useCallback((currentId) => {
-    const parent = headings.find(h =>
-      h.children?.some(c => c.id === currentId)
-    )
-    if (parent) {
-      setOpenSections(prev =>
-        prev.includes(parent.id) ? prev : [...prev, parent.id]
-      )
+    let chapterToOpen = null
+
+    for (const chapter of headings) {
+      // Check if the active section is a direct child of this chapter
+      if (chapter.children?.some(c => c.id === currentId)) {
+        chapterToOpen = chapter.id
+        break
+      }
+
+      // Check if it's a grandchild (topic under a service)
+      for (const service of (chapter.children || [])) {
+        if (service.children?.some(gc => gc.id === currentId)) {
+          chapterToOpen = chapter.id
+          break
+        }
+      }
+
+      if (chapterToOpen) break
+    }
+
+    if (chapterToOpen) {
+      setOpenSections(prev => {
+        if (!prev.includes(chapterToOpen)) {
+          return [...prev, chapterToOpen]
+        }
+        return prev
+      })
     }
   }, [headings])
 

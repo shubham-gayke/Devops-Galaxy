@@ -13,6 +13,10 @@ const stripEmoji = (text) =>
  * Extracts and caches the heading hierarchy from markdown content.
  * Parsing runs exactly once per page (cached in the module-level tocCache Map).
  *
+ * Supports 3-level nesting for numbered sections (e.g. Chapter 3 → 3.1 IAM → topics).
+ * Numbered h2 sections like "3.1 IAM" become children of the current chapter,
+ * and their h3 topics become children of the service node (not the chapter).
+ *
  * @param {string|null} content - Raw markdown string
  * @param {string} pageKey - Unique key for this page (e.g. 'git', 'aws')
  * @returns {{ id: string, title: string, level: number, children: object[] }[]}
@@ -21,7 +25,8 @@ export function useToc(content, pageKey) {
   return useMemo(() => {
     if (!content) return []
 
-    const cacheKey = `toc:${pageKey}`
+    // Bump cache version to force refresh after structure changes
+    const cacheKey = `toc:${pageKey}:v3`
     if (tocCache.has(cacheKey)) return tocCache.get(cacheKey)
 
     // Strip fenced code blocks to avoid matching code content as headings
@@ -30,18 +35,37 @@ export function useToc(content, pageKey) {
 
     const headings = []
     let currentChapter = null
+    // Track the current numbered service section (e.g. "3.1 IAM") so
+    // level-3 headings inside it become children of the service, not the chapter.
+    let currentService = null
 
     matches.forEach(match => {
       const level = match[1].length
       const text = stripEmoji(match[2])
       const id = text.toLowerCase().replace(/[^\w]+/g, '-').replace(/^-+|-+$/g, '')
+      
+      // Check if this is a numbered section like "3.1 IAM", "3.2 EC2", etc.
+      const isNumberedSection = /^\d+\.\d+/.test(text)
+      
       const item = { id, title: text, level, children: [] }
 
-      if (level <= 2) {
-        headings.push(item)
-        currentChapter = item
+      if (level === 2) {
+        if (isNumberedSection && currentChapter) {
+          // Numbered sub-section → child of the current chapter, becomes the active service
+          currentChapter.children.push(item)
+          currentService = item
+        } else {
+          // Regular chapter heading
+          headings.push(item)
+          currentChapter = item
+          currentService = null // reset service when entering a new chapter
+        }
       } else if (level === 3) {
-        if (currentChapter) {
+        if (currentService) {
+          // Inside a numbered service section → nest under the service
+          currentService.children.push(item)
+        } else if (currentChapter) {
+          // Regular chapter child (no numbered service parent)
           currentChapter.children.push(item)
         } else {
           headings.push(item)
