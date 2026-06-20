@@ -26,7 +26,7 @@ export function useToc(content, pageKey) {
     if (!content) return []
 
     // Bump cache version to force refresh after structure changes
-    const cacheKey = `toc:${pageKey}:v3`
+    const cacheKey = `toc:${pageKey}:v6`
     if (tocCache.has(cacheKey)) return tocCache.get(cacheKey)
 
     // Strip fenced code blocks to avoid matching code content as headings
