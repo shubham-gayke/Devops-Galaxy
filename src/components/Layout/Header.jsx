@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { GitBranch, Cloud, Server, HelpCircle, Search, Menu, X } from 'lucide-react'
+import { GitBranch, Cloud, Server, HelpCircle, Search, Menu, X, Box } from 'lucide-react'
 import { useSearch } from '../../features/search/useSearch'
 
 const NAV_ITEMS = [
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { path: '/ansible',   label: 'Ansible',      icon: Server    },
   { path: '/aws',       label: 'AWS Cloud',    icon: Cloud     },
   { path: '/interview', label: 'Interview Q&A',icon: HelpCircle},
+  { path: 'https://docker-notes-three.vercel.app/', label: 'Docker', icon: Box, isExternal: true },
 ]
 
 /**
@@ -90,13 +91,17 @@ export default function Header({ content, pageKey, scrollProgress, theme, onThem
         {/* Nav + search center section */}
         <div className={`header-center ${mobileOpen ? 'mobile-open' : ''}`}>
           <nav className="nav-links">
-            {NAV_ITEMS.map(({ path, label, icon: Icon }) => (
+            {NAV_ITEMS.map(({ path, label, icon: Icon, isExternal }) => (
               <button
                 key={path}
                 className={`nav-btn ${location.pathname === path ? 'active' : ''}`}
                 onClick={() => {
-                  navigate(path)
-                  window.scrollTo({ top: 0 })
+                  if (isExternal) {
+                    window.open(path, '_blank', 'noopener,noreferrer')
+                  } else {
+                    navigate(path)
+                    window.scrollTo({ top: 0 })
+                  }
                   setMobileOpen(false)
                 }}
               >
