@@ -9,17 +9,27 @@ import AnsiblePage from '../routes/AnsiblePage'
 import AwsPage from '../routes/AwsPage'
 import InterviewPage from '../routes/InterviewPage'
 
+import Login from '../components/Auth/Login'
+import Register from '../components/Auth/Register'
+import Subscribe from '../components/Auth/Subscribe'
+import AdminDashboard from '../components/Auth/AdminDashboard'
+import ProtectedRoute from '../components/Auth/ProtectedRoute'
+
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
     children: [
       { index: true,           element: <Navigate to="/git" replace /> },
-      { path: 'git',           element: <GitPage /> },
-      { path: 'terraform',     element: <TerraformPage /> },
-      { path: 'ansible',       element: <AnsiblePage /> },
-      { path: 'aws',           element: <AwsPage /> },
-      { path: 'interview',     element: <InterviewPage /> },
+      { path: 'login',         element: <Login /> },
+      { path: 'register',      element: <Register /> },
+      { path: 'subscribe',     element: <ProtectedRoute><Subscribe /></ProtectedRoute> },
+      { path: 'admin',         element: <ProtectedRoute requireAdmin={true}><AdminDashboard /></ProtectedRoute> },
+      { path: 'git',           element: <ProtectedRoute><GitPage /></ProtectedRoute> },
+      { path: 'terraform',     element: <ProtectedRoute><TerraformPage /></ProtectedRoute> },
+      { path: 'ansible',       element: <ProtectedRoute><AnsiblePage /></ProtectedRoute> },
+      { path: 'aws',           element: <ProtectedRoute><AwsPage /></ProtectedRoute> },
+      { path: 'interview',     element: <ProtectedRoute><InterviewPage /></ProtectedRoute> },
       { path: '*',             element: (
         <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
           <h2 style={{ color: 'var(--text-main)', fontSize: '2rem' }}>404 - Page Not Found</h2>

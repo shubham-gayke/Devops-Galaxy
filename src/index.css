@@ -702,23 +702,38 @@ tbody tr:hover td {
   top: 0;
   z-index: 100;
   background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
   padding: 0.75rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
+  transition: all 0.3s ease;
 }
 
 .header-logo {
-  font-size: 1.4rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.header-logo:hover {
+  transform: scale(1.02);
+}
+
+.logo-text {
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 0.5px;
 }
 
 .header-logo svg { color: var(--accent); }
@@ -788,7 +803,7 @@ tbody tr:hover td {
 /* ===================== SEARCH ===================== */
 .search-container {
   position: relative;
-  max-width: 280px;
+  max-width: 200px;
   width: 100%;
 }
 

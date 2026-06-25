@@ -1,15 +1,17 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { GitBranch, Cloud, Server, HelpCircle, Search, Menu, X, Box } from 'lucide-react'
+import { GitBranch, Cloud, Server, HelpCircle, Search, Menu, X, Box, User as UserIcon, Terminal } from 'lucide-react'
 import { useSearch } from '../../features/search/useSearch'
+import { useAuth } from '../../context/AuthContext'
 
 const NAV_ITEMS = [
+  { path: 'https://linux-notes-web.vercel.app/', label: 'Linux', icon: Terminal, isExternal: true },
+  { path: '/aws',       label: 'AWS Cloud',    icon: Cloud     },
   { path: '/git',       label: 'Git & GitHub', icon: GitBranch },
   { path: '/terraform', label: 'Terraform',    icon: Cloud     },
   { path: '/ansible',   label: 'Ansible',      icon: Server    },
-  { path: '/aws',       label: 'AWS Cloud',    icon: Cloud     },
-  { path: '/interview', label: 'Interview Q&A',icon: HelpCircle},
   { path: 'https://docker-notes-three.vercel.app/', label: 'Docker', icon: Box, isExternal: true },
+  { path: '/interview', label: 'Interview Q&A',icon: HelpCircle},
 ]
 
 /**
@@ -27,6 +29,7 @@ export default function Header({ content, pageKey, scrollProgress, theme, onThem
   const [mobileOpen, setMobileOpen] = useState(false)
   const searchRef = useRef(null)
   const searchInputRef = useRef(null)
+  const { user, logout } = useAuth()
 
   const { query, setQuery, results, showResults } = useSearch(content, pageKey)
 
@@ -75,8 +78,8 @@ export default function Header({ content, pageKey, scrollProgress, theme, onThem
       <header className="header">
         {/* Logo */}
         <div className="header-logo">
-          <GitBranch size={26} />
-          <span>DevMastery</span>
+          <GitBranch size={26} color="var(--accent)" />
+          <span className="logo-text">DEVOPS NOTES</span>
         </div>
 
         {/* Mobile toggle */}
@@ -156,6 +159,23 @@ export default function Header({ content, pageKey, scrollProgress, theme, onThem
             <option value="dark">🌙 Dark</option>
             <option value="ocean">🌊 Ocean</option>
           </select>
+
+          {/* Auth Actions */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginLeft: '1rem' }}>
+            {user ? (
+              <>
+                {user.role === 'admin' && (
+                  <button onClick={() => { navigate('/admin'); setMobileOpen(false); }} className="nav-btn" style={{ color: 'var(--accent)' }}>Admin</button>
+                )}
+                {!user.isPremium && (
+                  <button onClick={() => { navigate('/subscribe'); setMobileOpen(false); }} className="nav-btn" style={{ color: '#ffd700' }}>Subscribe</button>
+                )}
+                <button onClick={logout} className="nav-btn">Logout</button>
+              </>
+            ) : (
+              <button disabled onClick={() => { navigate('/login'); setMobileOpen(false); }} className="nav-btn" style={{ background: 'var(--accent)', color: '#fff', opacity: 0.5, cursor: 'not-allowed', borderRadius: '4px', padding: '0.4rem 1rem' }}>Login (Disabled)</button>
+            )}
+          </div>
         </div>
       </header>
     </>
