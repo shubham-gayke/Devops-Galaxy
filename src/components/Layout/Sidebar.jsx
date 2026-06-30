@@ -1,3 +1,4 @@
+import React, { useRef, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -15,11 +16,23 @@ function SidebarNode({ node, depth, activeSection, openSections, onToggleSection
   const hasChildren = node.children && node.children.length > 0
   const isOpen = openSections.includes(node.id)
   const isActive = activeSection === node.id
+  const nodeRef = useRef(null)
+
+  useEffect(() => {
+    if (isActive && nodeRef.current) {
+      setTimeout(() => {
+        if (nodeRef.current) {
+          nodeRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+        }
+      }, 200)
+    }
+  }, [isActive])
 
   if (!hasChildren) {
     // Leaf node — render as a clickable link
     return (
       <a
+        ref={nodeRef}
         href={`#${node.id}`}
         className={`toc-sub-link ${isActive ? 'active' : ''}`}
         onClick={e => {
@@ -39,6 +52,7 @@ function SidebarNode({ node, depth, activeSection, openSections, onToggleSection
   return (
     <div>
       <button
+        ref={nodeRef}
         className={`${btnClass} ${isActive ? 'active' : ''}`}
         onClick={() => {
           onToggleSection(node.id)

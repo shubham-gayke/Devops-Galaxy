@@ -347,7 +347,9 @@ const ASGQuickRevisionVisual = () => {
 }
 
 const PlainCodeBlock = ({ code }) => {
-  const trimmed = code.trim()
+  // Use replace to strip leading newlines only, and trimEnd to strip trailing whitespace.
+  // This preserves leading spaces on the first line, which are critical for ASCII diagrams!
+  const trimmed = code.replace(/^\n+/, '').trimEnd()
   const isAsciiDiagram =
     /[┌┐└┘├┤─│╔╗╚╝═║]/.test(trimmed) ||
     /(->|=>|→|│|└|┌)/.test(trimmed)
@@ -382,7 +384,12 @@ const PlainCodeBlock = ({ code }) => {
 
 const Pre = ({ children }) => {
   const child = Array.isArray(children) ? children[0] : children
-  if (child?.type === CodeBlock) return children
+  
+  // If the child is a Code component and has a language specified, 
+  // it is meant to be rendered by CodeBlock with syntax highlighting.
+  // We return it directly so CodeBlock can wrap it in a <pre> tag.
+  const hasLanguage = child?.props?.className?.includes('language-')
+  if (hasLanguage) return children
 
   const code = extractText(child?.props?.children ?? children)
 

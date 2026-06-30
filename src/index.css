@@ -310,12 +310,14 @@ pre code {
   box-shadow: none;
   background: transparent;
   color: #dbeafe;
+  font-family: Consolas, 'Courier New', monospace;
   font-size: 0.82rem;
   line-height: 1.65;
   max-width: 100%;
 }
 
 .md-diagram-block pre {
+  line-height: 1.15;
   padding: 1rem;
   overflow-x: auto;
 }

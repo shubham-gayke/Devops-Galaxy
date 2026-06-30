@@ -26,9 +26,9 @@ export default function Layout() {
   // Prefetch all markdown files in the background on initial load
   // This guarantees absolutely instant tab switching
   React.useEffect(() => {
-    const pages = ['git', 'terraform', 'ansible', 'aws', 'interview']
+    const pages = ['git', 'terraform', 'ansible', 'aws', 'interview', 'kubernetes']
     pages.forEach(page => {
-      const url = `/content/${page}.md?v=4`
+      const url = `/content/${page}.md?v=11`
       if (!markdownCache.has(url)) {
         fetch(url)
           .then(r => r.text())

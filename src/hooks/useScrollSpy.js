@@ -125,6 +125,7 @@ export function useScrollSpy(headings, contentKey) {
 
           if (topmost) {
             setActiveSection(topmost)
+            autoExpandParent(topmost)
           }
         }
       },

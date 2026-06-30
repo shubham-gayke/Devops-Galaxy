@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { path: '/git',       label: 'Git & GitHub', icon: GitBranch },
   { path: '/terraform', label: 'Terraform',    icon: Cloud     },
   { path: '/ansible',   label: 'Ansible',      icon: Server    },
+  { path: '/kubernetes',label: 'Kubernetes',   icon: Server    },
   { path: 'https://docker-notes-three.vercel.app/', label: 'Docker', icon: Box, isExternal: true },
   { path: '/interview', label: 'Interview Q&A',icon: HelpCircle},
 ]
